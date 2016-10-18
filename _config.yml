@@ -1,12 +1,12 @@
 # SITE CONFIGURATION
 baseurl: "/blog" # the subpath of your site, e.g. /blog/
-url: "http://dustintran.com" # the base hostname & protocol for your site
+url: "http://ev.ancasey.com" # the base hostname & protocol for your site
 
 # THEME-SPECIFIC CONFIGURATION
 theme_settings:
   # Meta
-  title: Dustin Tran
-  author: Dustin Tran
+  title: Evan Casey
+  author: Evan Casey
   avatar: photo.png
   gravatar:
   description:
@@ -14,7 +14,7 @@ theme_settings:
   header_text:
   header_text_feature_image:
   footer_text: >
-    © 2016 ・ <a class="plain" href="http://dustintran.com">dustintran.com</a>
+    © 2016 ・ <a class="plain" href="http://ev.ancasey.com">ev.ancasey.com</a>
 
   # Icons
   rss: false
@@ -24,7 +24,7 @@ theme_settings:
   dribbble:
   facebook:
   flickr:
-  github: "dustinvtran"
+  github: "evancasey"
   google_plus:
   instagram:
   linkedin:
@@ -34,12 +34,12 @@ theme_settings:
   stack_exchange:
   steam:
   tumblr:
-  twitter: "dustinvtran"
+  twitter: "ev_ancasey"
   wordpress:
   youtube:
 
   # Scripts
-  google_analytics: "UA-53150914-2"
+  google_analytics:
   disqus_shortname:
   katex: true
 
@@ -62,7 +62,7 @@ scholar:
   sort_by: author
 
 # BUILD SETTINGS
-permalink: "/:title"
+permalink: "/:title.html"
 sass:
   sass_dir: _sass
   style: :compressed

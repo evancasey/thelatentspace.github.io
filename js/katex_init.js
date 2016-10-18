@@ -3,7 +3,8 @@ var elements = document.getElementsByTagName('script')
 Array.prototype.forEach.call(elements, function(element) {
   if (element.type.indexOf('math/tex') != -1) {
      // Extract math markdown
-     var textToRender = element.innerText || element.textContent;
+     var rawTextToRender = element.innerText || element.textContent;
+     var textToRender = rawTextToRender.replace("% <![CDATA[", "").replace("%]]>", "");
 
      // Create span for KaTeX
      var katexElement = document.createElement('span');
