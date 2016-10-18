@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html class="no-js">
+  <head>
+	<meta charset="utf-8">
+	<title>On parameterization and natural gradients in optimization | Dustin Tran</title>
+	<meta name="description" content="I went to a talk by Roger Grosse today, who was presenting his very recent work on a new SGD procedure called K-FAC [2]. Using the correct parameterization d...">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<meta http-equiv="X-Frame-Options" content="sameorigin">
+
+	<!-- CSS -->
+	<link rel="stylesheet" href="/blog/css/main.css">
+
+	<!--Favicon-->
+	<link rel="shortcut icon" href="/blog/favicon.ico" type="image/x-icon">
+
+	<!-- Canonical -->
+	<link rel="canonical" href="http://dustintran.com/blog/on-parameterization-and-natural-gradients-in-optimization">
+
+	<!-- RSS -->
+	<link rel="alternate" type="application/atom+xml" title="Dustin Tran" href="http://dustintran.com/blog/feed.xml" />
+
+	<!-- Font Awesome -->
+	<link href="//maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css" rel="stylesheet">
+
+	<!-- Google Fonts -->
+	
+	<link href="//fonts.googleapis.com/css?family=Source+Sans+Pro:400,700,700italic,400italic" rel="stylesheet" type="text/css">
+	
+
+	<!-- KaTeX -->
+	
+	<link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/KaTeX/0.6.0/katex.min.css">
+	<script src="//cdnjs.cloudflare.com/ajax/libs/KaTeX/0.6.0/katex.min.js"></script>
+	
+
+	<!-- Google Analytics -->
+	
+	<script>
+	(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+	(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+	m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+	})(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+	ga('create', 'UA-53150914-2', 'auto');
+	ga('send', 'pageview');
+	</script>
+	
+</head>
+
+  <body>
+    <header class="site-header">
+	<div class="branding">
+		
+		<a href="/blog/">
+			<img class="avatar" src="/blog/img/photo.png" alt=""/>
+		</a>
+		
+		<h1 class="site-title">
+			<a href="/blog/">Dustin Tran</a>
+		</h1>
+	</div>
+	<nav class="site-nav">
+		<ul>
+                        <li>
+				<a class="page-link" href="http://dustintran.com">
+					about　
+				</a>
+			</li>
+			
+			
+			<li>
+				<a class="page-link" href="/blog/2016-10-11-cross-entropy">
+					Derivative free reinforcement learning with the cross entropy method
+				</a>
+			</li>
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			<!-- Social icons from Font Awesome, if enabled -->
+			
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<li>
+	<a href="https://github.com/dustinvtran" title="Follow on GitHub">
+		<i class="fa fa-fw fa-github"></i>
+	</a>
+</li>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<li>
+	<a href="https://twitter.com/dustinvtran" title="Follow on Twitter">
+		<i class="fa fa-fw fa-twitter"></i>
+	</a>
+</li>
+
+
+
+
+
+
+		</ul>
+	</nav>
+</header>
+
+    <div class="content">
+      <article >
+  <header style="background-image: url('/blog/')">
+    <h1 class="title">On parameterization and natural gradients in optimization</h1>
+    <div style="padding-top:3%;"></div>
+    <div class="meta">
+      <span class="author">
+        By
+        
+          <a class="author-name" href="http://dustintran.com">Dustin Tran</a>
+        
+      </span>
+      <span class="date">Apr 27, 2015</span>
+      <ul>
+        
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<li>
+	<a href="https://github.com/dustinvtran" title="Follow on GitHub">
+		<i class="fa fa-fw fa-github"></i>
+	</a>
+</li>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<li>
+	<a href="https://twitter.com/dustinvtran" title="Follow on Twitter">
+		<i class="fa fa-fw fa-twitter"></i>
+	</a>
+</li>
+
+
+
+
+
+
+      </ul>
+    </div>
+  </header>
+  <section class="post-content"><p>I went to a talk by <a href="http://www.cs.toronto.edu/~rgrosse/">Roger Grosse</a> today, who was presenting his very recent work on a new SGD procedure called <a href="http://arxiv.org/abs/1503.05671">K-FAC</a> [2]. Using the correct parameterization during optimization is a crucial issue, and it’s great that there’s more work revolving around this as previous literature has focused mainly on the issue of the learning rate.</p>
+
+<p>The idea of K-FAC boils down to the fact that adaptive methods such as AdaGrad [1], and those that employ momentum with Nesterov’s accelerated gradient [3], ultimately do better than the original stochastic gradient descent because they take advantage of second-order (curvature) information. More precisely, they take advantage of the information geometry of the parameter space, as the <a href="https://hips.seas.harvard.edu/blog/2013/01/25/the-natural-gradient/">natural gradient</a> can be directly written as the matrix-vector multiplication of the inverse Fisher information with the original gradient. (I also like interpreting the natural gradient update simply through <a href="http://en.wikipedia.org/wiki/Fisher_scoring">Fisher scoring</a>.) Thus the question is: at what point can one best approximate the Fisher information while limiting the computational complexity at each iteration?</p>
+
+<p>Their approach is to consider approximating the Fisher information as a block diagonal matrix, which allows one to recover some dependency structure in the curvature between parameters, but not so much that it makes the inversion too slow. Block diagonals allow one to do smaller mini-inversions in parallel and don’t come at “too much of a cost” compared to the original iteration complexity for SGD. There’s no good theory on the method, and it doesn’t easily generalize to arbitrary models, as one has to carefully consider where to make the blocks and where to allow for independence in parameters. Still, I think it’s certainly in the right direction past the current adaptive/momentum-type methods.</p>
+
+<p>This also seems to be the right track for variational inference as we can only go so far with mean-field approximations. However, structured approaches that condition on the model can’t generalize, and it would be interesting to examine copula-based approaches which don’t require such precise dependency knowledge a priori and would collapse some of them in the limit. I’m also curious to when stability might be more closely examined by the optimization/neural net community.</p>
+
+<h2 id="references">References</h2>
+<p>[1] John Duchi, Elad Hazan, and Yoram Singer. Adaptive subgradient methods for online learning and stochastic optimization. <em>Journal of Machine Learning Research (JMLR)</em>, 12:2121–2159, 2011.</p>
+
+<p>[2] James Martens and Roger Grosse. Optimizing neural networks with kronecker-factored approximate curvature. <a href="http://arxiv.org/abs/1503.05671">arXiv:1503.05671</a>, 2015.</p>
+
+<p>[3] Yurii Nesterov. A method for solving a convex programming problem with convergence rate <script type="math/tex">O(1/k^2)</script>. Soviet Math. Dokl., 27, 372–376, 1983.</p>
+</section>
+</article>
+
+<!-- Post navigation -->
+
+
+<!-- Disqus -->
+
+
+    </div>
+    
+<script src="/blog/js/katex_init.js"></script>
+
+
+
+<footer class="site-footer">
+	<p class="text">© 2016 ・ <a class="plain" href="http://dustintran.com">dustintran.com</a>
+</p>
+</footer>
+
+
+  </body>
+</html>

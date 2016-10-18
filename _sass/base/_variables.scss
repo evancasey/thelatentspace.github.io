@@ -1,0 +1,31 @@
+// Typography
+$font-family-main: georgia, 'times new roman', times, serif;
+$font-family-headings: 'nyt-cheltenham-sh', 'nyt-cheltenham', georgia, 'times new roman', times, serif;
+$font-size: 17px;
+
+// Padding
+$padding-large: 20%;
+$padding-small: 5%;
+$padding-x-small: 3%;
+
+// Brand colours
+$brand-color: #fff;
+$background-color: #fff;
+$border-color: rgba(0, 0, 0, 0.1); // rgba recommended if using feature images
+
+// Typography colours
+$text-color: #000000;
+$plain-color: #000000;
+$link-color: #326891;
+$selection-color: #D4D4D4; // visible when highlighting text
+
+// Header colours
+$header-link-color: $plain-color;
+
+// Feature image for articles
+$feature-image-text-color: #fff;
+$feature-image-size: cover; // options include "cover", "contain", "auto"
+
+// Header description box
+$header-desc-background-color: #F98752;
+$header-desc-text-color: #FFF;

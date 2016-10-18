@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html class="no-js">
+  <head>
+	<meta charset="utf-8">
+	<title>Random features and kernel functions | Dustin Tran</title>
+	<meta name="description" content="There’s this really cool idea for learning nonlinear functions with simple techniques, launched quite a while ago by Rahimi and Recht (2007), and which I hav...">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<meta http-equiv="X-Frame-Options" content="sameorigin">
+
+	<!-- CSS -->
+	<link rel="stylesheet" href="/blog/css/main.css">
+
+	<!--Favicon-->
+	<link rel="shortcut icon" href="/blog/favicon.ico" type="image/x-icon">
+
+	<!-- Canonical -->
+	<link rel="canonical" href="http://dustintran.com/blog/random-features-for-learning-kernel-functions">
+
+	<!-- RSS -->
+	<link rel="alternate" type="application/atom+xml" title="Dustin Tran" href="http://dustintran.com/blog/feed.xml" />
+
+	<!-- Font Awesome -->
+	<link href="//maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css" rel="stylesheet">
+
+	<!-- Google Fonts -->
+	
+	<link href="//fonts.googleapis.com/css?family=Source+Sans+Pro:400,700,700italic,400italic" rel="stylesheet" type="text/css">
+	
+
+	<!-- KaTeX -->
+	
+	<link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/KaTeX/0.6.0/katex.min.css">
+	<script src="//cdnjs.cloudflare.com/ajax/libs/KaTeX/0.6.0/katex.min.js"></script>
+	
+
+	<!-- Google Analytics -->
+	
+	<script>
+	(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+	(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+	m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+	})(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+	ga('create', 'UA-53150914-2', 'auto');
+	ga('send', 'pageview');
+	</script>
+	
+</head>
+
+  <body>
+    <header class="site-header">
+	<div class="branding">
+		
+		<a href="/blog/">
+			<img class="avatar" src="/blog/img/photo.png" alt=""/>
+		</a>
+		
+		<h1 class="site-title">
+			<a href="/blog/">Dustin Tran</a>
+		</h1>
+	</div>
+	<nav class="site-nav">
+		<ul>
+                        <li>
+				<a class="page-link" href="http://dustintran.com">
+					about　
+				</a>
+			</li>
+			
+			
+			<li>
+				<a class="page-link" href="/blog/2016-10-11-cross-entropy">
+					Derivative free reinforcement learning with the cross entropy method
+				</a>
+			</li>
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			<!-- Social icons from Font Awesome, if enabled -->
+			
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<li>
+	<a href="https://github.com/dustinvtran" title="Follow on GitHub">
+		<i class="fa fa-fw fa-github"></i>
+	</a>
+</li>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<li>
+	<a href="https://twitter.com/dustinvtran" title="Follow on Twitter">
+		<i class="fa fa-fw fa-twitter"></i>
+	</a>
+</li>
+
+
+
+
+
+
+		</ul>
+	</nav>
+</header>
+
+    <div class="content">
+      <article >
+  <header style="background-image: url('/blog/')">
+    <h1 class="title">Random features and kernel functions</h1>
+    <div style="padding-top:3%;"></div>
+    <div class="meta">
+      <span class="author">
+        By
+        
+          <a class="author-name" href="http://dustintran.com">Dustin Tran</a>
+        
+      </span>
+      <span class="date">Aug 24, 2015</span>
+      <ul>
+        
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<li>
+	<a href="https://github.com/dustinvtran" title="Follow on GitHub">
+		<i class="fa fa-fw fa-github"></i>
+	</a>
+</li>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<li>
+	<a href="https://twitter.com/dustinvtran" title="Follow on Twitter">
+		<i class="fa fa-fw fa-twitter"></i>
+	</a>
+</li>
+
+
+
+
+
+
+      </ul>
+    </div>
+  </header>
+  <section class="post-content"><p>There’s this really cool idea for learning nonlinear functions with simple techniques, launched quite a while ago by Rahimi and Recht (2007), and which I haven’t fully grasped. Yet, the idea of random projections is becoming more popular these days; the problem of learning higher order functions simply comes up in so many places.</p>
+
+<p>Suppose there are <script type="math/tex">N</script> data points <script type="math/tex">\{x_i,y_i\}</script> where <script type="math/tex">x_i</script> has <script type="math/tex">d</script> covariates. In one case of the problem, the task is to train a classifier <script type="math/tex">f</script> via</p>
+
+<script type="math/tex; mode=display">\min \mathcal{L}(f; X,y)\equiv \min \frac{1}{N}\sum_{i=1}^N (f(x_i)- y_i)^2</script>
+
+<p>where <script type="math/tex">f</script> has the functional form</p>
+
+<script type="math/tex; mode=display">f(x) = \sum_{i=1}^N \alpha_i k(x, x_i)
+= \sum_{i=1}^\infty \alpha(w_i)\phi(x; w_i)</script>
+
+<p>where the second equality is true by the Representer Theorem, where <script type="math/tex">\phi:X\times\Omega\to\mathbb{R}</script> is known as a <em>feature function</em> such that <script type="math/tex">\phi(x)^T\phi(y) = k(x,y)</script>.</p>
+
+<p>This says that one can avoid training the kernel machine directly, which requires computing a <script type="math/tex">n\times n</script> matrix comprised of kernel entries <script type="math/tex">k(x_i,x_j)</script>; instead, train in the feature space <script type="math/tex">\phi(\cdot)</script>. This feature space is infinite-dimensional, so we approximate it with one of finite dimension <script type="math/tex">k</script>:</p>
+
+<script type="math/tex; mode=display">f(x) \approx \sum_{i=1}^k \alpha(w_i) z(x; w_i),\quad k(x,y) = \phi(x)^T\phi(y) \approx z(x)^Tz(y)</script>
+
+<p>Thus, given <script type="math/tex">w_i</script>’s and function <script type="math/tex">z</script>, the task reduces to performing linear regression over the <script type="math/tex">z</script>’s. We form this finite-dimensional representation using <em>random features</em> to generate <script type="math/tex">w_i</script>’s and whose distribution induces a functional form for the <script type="math/tex">z</script>’s.</p>
+
+<p><strong>Random Fourier features</strong>.</p>
+
+<ul>
+  <li>Generate a random <script type="math/tex">k\times d</script> matrix <script type="math/tex">W</script>, e.g., for each entry <script type="math/tex">W_{i,j}\sim\mathcal{N}(0,1)</script>.</li>
+  <li>Compute the <script type="math/tex">k\times N</script> feature matrix <script type="math/tex">Z</script>, where entry <script type="math/tex">Z_{i,j}</script> is the <script type="math/tex">i^{th}</script> feature map on the <script type="math/tex">j^{th}</script> data point</li>
+</ul>
+
+<p>$$
+Z_{ij}=z_i(x_j;
+w_i) \equiv \exp(i\cdot w_i^Tx_j)
+$</p>
+
+<p>This implies</p>
+
+<script type="math/tex; mode=display">\min \mathcal{L}(f; X,y) \approx \min_{\alpha\in\mathbb{R}^k} \sum_{i=1}^k (z_i^T\alpha -
+y_i), \quad k(x, y) \approx z(x)^Tz(y)</script>
+
+<ul>
+  <li>Perform linear regression: <script type="math/tex">\mathrm{Regress}(y \sim Z)</script>, e.g., <script type="math/tex">\alpha = (Z^TZ)^{-1}Zy\in\mathbb{R}^k</script>.</li>
+</ul>
+
+<p>The result is an approximation to the classifier with the Gaussian RBF kernel.</p>
+
+<p>As confused as I am why this works? There’s an <a href="http://research.microsoft.com/apps/video/default.aspx?id=103390&amp;l=i">old 2009 video</a> of Rahimi presenting the idea in more generality, and also a short overview of the paper in context of previous literature <a href="http://blog.smola.org/post/10572672684/the-neal-kernel-and-random-kitchen-sinks">available here</a>.</p>
+
+<p>To motivate this from a statistics and/or signal processing point of view, Guhaniyog and Dunson (2013) have this really cool paper which uses it for regression in Bayesian statistics.</p>
+
+<p>A table of training time and storage, and test time and storage for this procedure is found in Le et al. (2014; Table 1), which itself is a recent extension which makes the procedure even <em>more</em> easy to store and approximate the Gaussian RBF kernel within some <script type="math/tex">\epsilon</script> accuracy.  For a more direct connection to Gaussian processes, a related paper (and the most recent paper related to these ideas) is Yang et al. (2015).</p>
+
+<p>jj
+## References
+* Rajarshi Guhaniyogi and David B. Dunson. Bayesian Compressed Regression. <em>arXiv preprint: arXiv:1303.0642</em>, 2013.
+* Quoc Viet Le, Tamas Sarlos, and Alexander Johannes Smola. Fastfood: Approximate Kernel Expansions in Loglinear Time. In <em>International Conference on Machine Learning</em>, 2013.
+* Ali Rahimi and Benjamin Recht. Random features for large-scale kernel machines. In <em>Neural Information Processing Systems</em>, 2007.
+* Ali Rahimi and Benjamin Recht. Weighted Sums of Random Kitchen Sinks: Replacing minimization with randomization in learning. In <em>Neural Information Processing Systems</em>, pages 1–8, October 2009.
+* Zichao Yang, Alex Smola, Song Le, and Andrew Gordon Wilson. A la Carte—Learning Fast Kernels. In <em>Artificial Intelligence and Statistics</em>, 2015.</p>
+
+</section>
+</article>
+
+<!-- Post navigation -->
+
+
+<!-- Disqus -->
+
+
+    </div>
+    
+<script src="/blog/js/katex_init.js"></script>
+
+
+
+<footer class="site-footer">
+	<p class="text">© 2016 ・ <a class="plain" href="http://dustintran.com">dustintran.com</a>
+</p>
+</footer>
+
+
+  </body>
+</html>

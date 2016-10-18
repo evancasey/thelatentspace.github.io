@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html class="no-js">
+  <head>
+	<meta charset="utf-8">
+	<title>A quick update: Edward, and some motivations | Dustin Tran</title>
+	<meta name="description" content="As you may (or may not) know, I’ve been busy lately spear-heading Edward, an open-source library for probabilistic modeling. It’s meant to help bridge the ga...">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<meta http-equiv="X-Frame-Options" content="sameorigin">
+
+	<!-- CSS -->
+	<link rel="stylesheet" href="/blog/css/main.css">
+
+	<!--Favicon-->
+	<link rel="shortcut icon" href="/blog/favicon.ico" type="image/x-icon">
+
+	<!-- Canonical -->
+	<link rel="canonical" href="http://dustintran.com/blog/a-quick-update-edward-and-some-motivations">
+
+	<!-- RSS -->
+	<link rel="alternate" type="application/atom+xml" title="Dustin Tran" href="http://dustintran.com/blog/feed.xml" />
+
+	<!-- Font Awesome -->
+	<link href="//maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css" rel="stylesheet">
+
+	<!-- Google Fonts -->
+	
+	<link href="//fonts.googleapis.com/css?family=Source+Sans+Pro:400,700,700italic,400italic" rel="stylesheet" type="text/css">
+	
+
+	<!-- KaTeX -->
+	
+	<link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/KaTeX/0.6.0/katex.min.css">
+	<script src="//cdnjs.cloudflare.com/ajax/libs/KaTeX/0.6.0/katex.min.js"></script>
+	
+
+	<!-- Google Analytics -->
+	
+	<script>
+	(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+	(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+	m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+	})(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+	ga('create', 'UA-53150914-2', 'auto');
+	ga('send', 'pageview');
+	</script>
+	
+</head>
+
+  <body>
+    <header class="site-header">
+	<div class="branding">
+		
+		<a href="/blog/">
+			<img class="avatar" src="/blog/img/photo.png" alt=""/>
+		</a>
+		
+		<h1 class="site-title">
+			<a href="/blog/">Dustin Tran</a>
+		</h1>
+	</div>
+	<nav class="site-nav">
+		<ul>
+                        <li>
+				<a class="page-link" href="http://dustintran.com">
+					about　
+				</a>
+			</li>
+			
+			
+			<li>
+				<a class="page-link" href="/blog/2016-10-11-cross-entropy">
+					Derivative free reinforcement learning with the cross entropy method
+				</a>
+			</li>
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			<!-- Social icons from Font Awesome, if enabled -->
+			
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<li>
+	<a href="https://github.com/dustinvtran" title="Follow on GitHub">
+		<i class="fa fa-fw fa-github"></i>
+	</a>
+</li>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<li>
+	<a href="https://twitter.com/dustinvtran" title="Follow on Twitter">
+		<i class="fa fa-fw fa-twitter"></i>
+	</a>
+</li>
+
+
+
+
+
+
+		</ul>
+	</nav>
+</header>
+
+    <div class="content">
+      <article >
+  <header style="background-image: url('/blog/')">
+    <h1 class="title">A quick update: Edward, and some motivations</h1>
+    <div style="padding-top:3%;"></div>
+    <div class="meta">
+      <span class="author">
+        By
+        
+          <a class="author-name" href="http://dustintran.com">Dustin Tran</a>
+        
+      </span>
+      <span class="date">May 30, 2016</span>
+      <ul>
+        
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<li>
+	<a href="https://github.com/dustinvtran" title="Follow on GitHub">
+		<i class="fa fa-fw fa-github"></i>
+	</a>
+</li>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<li>
+	<a href="https://twitter.com/dustinvtran" title="Follow on Twitter">
+		<i class="fa fa-fw fa-twitter"></i>
+	</a>
+</li>
+
+
+
+
+
+
+      </ul>
+    </div>
+  </header>
+  <section class="post-content"><p>As you may (or may not) know, I’ve been busy lately spear-heading <a href="https://github.com/blei-lab/edward">Edward</a>, an open-source library for probabilistic modeling. It’s meant to help bridge the gap between what I view as two dichotomous approaches of statistical learning: one approach develops complex models in order to achieve the best results on a specific task; and the other approach adheres to simple models in order to understand every component of the analysis both empirically and theoretically. The former starts at the end-goal; the latter starts at the foundation.</p>
+
+<p>There are many names you can append to one of these approaches, and certainly those names imply contrasting motivations due to culture, and thus contrasting views and contrasting applications. But ultimately, the goal is still the same. The approaches are not orthogonal, but a lack of awareness connecting the two make them seem to be. A neural network is a powerful aproach for modeling non-linear functions (I mean this not tongue-in-cheek; it’s difficult to summarize many decades of innovation in a sentence). A Bayesian linear model is a powerful approach for incorporating parameter uncertainty during supervision, and for accessing a basis on which to validate our models.</p>
+
+<p>How do we <a href="https://www.stat.washington.edu/raftery/Research/PDF/Gneiting2007jasa.pdf">assess model fit</a> from a complex neural network architecture, and <a href="http://arxiv.org/abs/1206.6471">generalize to any setting</a>, whether it be <a href="https://sites.google.com/site/dataefficientml/">small data</a>, <a href="https://sites.google.com/site/dlworkshop16/">simulation-based tasks</a>, or <a href="http://steinhardt.nyu.edu/priism/newsandevents/conferences">even causal inferences</a>? How do we build <a href="http://link.springer.com/book/10.1007/978-1-4612-0745-0">more expressive models</a> when <a href="http://authors.library.caltech.edu/13796/1/MACnc92d.pdf">our</a> <a href="http://www.stat.columbia.edu/~gelman/research/published/A6n41.pdf">tools</a> tell us the generalized linear model fits okay, but is not nearly as fine-grained as we’d like it to be, or let our inferences <a href="http://leon.bottou.org/publications/pdf/compstat-2010.pdf">scale</a> to data that no longer fits in memory? If we use the <a href="https://en.wikipedia.org/wiki/Long_short-term_memory">many</a> <a href="http://www.gatsby.ucl.ac.uk/~dayan/papers/hm95.pdf">innovations</a> of deep learning in concert with statistical analysis, or conversely, the <a href="https://en.wikipedia.org/wiki/Statistical_Methods_for_Research_Workers">century of statistical foundations</a> in deep learning, we might just achieve something quite grand. (And I mean this one only a little tongue-in-cheek.)</p>
+
+<p>Edward, broadly speaking, tries to combine efforts from both approaches. It’s a software library I’ve always wanted to develop but never had the right resources until now. Fast and distributed computation can be done using <a href="https://www.tensorflow.org">TensorFlow</a> as a rich symbolic framework. Neural networks can be easily constructed with high-level libraries like <a href="http://keras.io">Keras</a>.  Flexible probability models can be specified using languages such as <a href="http://mc-stan.org">Stan</a>. And all of inference can be done using fast approximations via a built-in variational inference engine, with criticism techniques for both point prediction and distribution-based model assessments.</p>
+
+<p>I gave an Edward talk a few days ago at Google Brain— which I quite positively butchered due to a lack of sleep and preparation. (If only I had known I would get a sizeable cast of the TensorFlow core developers, Geoff Hinton, Jeff Dean, and Kevin Murphy in one room!) But I think the work explained itself, and with a lot of excitement about why Bayesian deep learning might be the right thing.</p>
+
+<p>There are a number of necessary developments in Edward to even make small steps in connecting these two approaches. I finally got to refactoring the code for <a href="https://github.com/blei-lab/edward/blob/master/examples/convolutional_vae.py">variational auto-encoders</a>; and designing the <a href="https://github.com/blei-lab/edward/pull/107">criticism API</a> for posterior predictive checks; and getting <a href="http://cbonnett.github.io/MDN_EDWARD_KERAS_TF.html">much help from others</a> for explaining how to build neural network-based probabilistic models; and many open problems to <a href="http://dustintran.com/papers/TranRanganathBlei2016.pdf">try</a> <a href="http://arxiv.org/abs/1603.00788">to</a> <a href="http://arxiv.org/abs/1511.02386">solve</a>. It’s not even close to there for getting statisticians, machine learners, and deep learners to agree with one another. But I think Edward is making progress.</p>
+</section>
+</article>
+
+<!-- Post navigation -->
+
+
+<!-- Disqus -->
+
+
+    </div>
+    
+<script src="/blog/js/katex_init.js"></script>
+
+
+
+<footer class="site-footer">
+	<p class="text">© 2016 ・ <a class="plain" href="http://dustintran.com">dustintran.com</a>
+</p>
+</footer>
+
+
+  </body>
+</html>

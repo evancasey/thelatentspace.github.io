@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html class="no-js">
+  <head>
+	<meta charset="utf-8">
+	<title>Trends and Highlights of ICML 2015 | Dustin Tran</title>
+	<meta name="description" content="There were a number of exciting things happening at ICML this past week, which took place in Lille, France.">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<meta http-equiv="X-Frame-Options" content="sameorigin">
+
+	<!-- CSS -->
+	<link rel="stylesheet" href="/blog/css/main.css">
+
+	<!--Favicon-->
+	<link rel="shortcut icon" href="/blog/favicon.ico" type="image/x-icon">
+
+	<!-- Canonical -->
+	<link rel="canonical" href="http://dustintran.com/blog/trends-and-highlights-of-icml-2015">
+
+	<!-- RSS -->
+	<link rel="alternate" type="application/atom+xml" title="Dustin Tran" href="http://dustintran.com/blog/feed.xml" />
+
+	<!-- Font Awesome -->
+	<link href="//maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css" rel="stylesheet">
+
+	<!-- Google Fonts -->
+	
+	<link href="//fonts.googleapis.com/css?family=Source+Sans+Pro:400,700,700italic,400italic" rel="stylesheet" type="text/css">
+	
+
+	<!-- KaTeX -->
+	
+	<link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/KaTeX/0.6.0/katex.min.css">
+	<script src="//cdnjs.cloudflare.com/ajax/libs/KaTeX/0.6.0/katex.min.js"></script>
+	
+
+	<!-- Google Analytics -->
+	
+	<script>
+	(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+	(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+	m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+	})(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+	ga('create', 'UA-53150914-2', 'auto');
+	ga('send', 'pageview');
+	</script>
+	
+</head>
+
+  <body>
+    <header class="site-header">
+	<div class="branding">
+		
+		<a href="/blog/">
+			<img class="avatar" src="/blog/img/photo.png" alt=""/>
+		</a>
+		
+		<h1 class="site-title">
+			<a href="/blog/">Dustin Tran</a>
+		</h1>
+	</div>
+	<nav class="site-nav">
+		<ul>
+                        <li>
+				<a class="page-link" href="http://dustintran.com">
+					about　
+				</a>
+			</li>
+			
+			
+			<li>
+				<a class="page-link" href="/blog/2016-10-11-cross-entropy">
+					Derivative free reinforcement learning with the cross entropy method
+				</a>
+			</li>
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			<!-- Social icons from Font Awesome, if enabled -->
+			
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<li>
+	<a href="https://github.com/dustinvtran" title="Follow on GitHub">
+		<i class="fa fa-fw fa-github"></i>
+	</a>
+</li>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<li>
+	<a href="https://twitter.com/dustinvtran" title="Follow on Twitter">
+		<i class="fa fa-fw fa-twitter"></i>
+	</a>
+</li>
+
+
+
+
+
+
+		</ul>
+	</nav>
+</header>
+
+    <div class="content">
+      <article >
+  <header style="background-image: url('/blog/')">
+    <h1 class="title">Trends and Highlights of ICML 2015</h1>
+    <div style="padding-top:3%;"></div>
+    <div class="meta">
+      <span class="author">
+        By
+        
+          <a class="author-name" href="http://dustintran.com">Dustin Tran</a>
+        
+      </span>
+      <span class="date">Jul 15, 2015</span>
+      <ul>
+        
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<li>
+	<a href="https://github.com/dustinvtran" title="Follow on GitHub">
+		<i class="fa fa-fw fa-github"></i>
+	</a>
+</li>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<li>
+	<a href="https://twitter.com/dustinvtran" title="Follow on Twitter">
+		<i class="fa fa-fw fa-twitter"></i>
+	</a>
+</li>
+
+
+
+
+
+
+      </ul>
+    </div>
+  </header>
+  <section class="post-content"><p>There were a number of exciting things happening at <a href="http://icml.cc/2015/">ICML this past week</a>, which took place in Lille, France.</p>
+
+<p>Deep learning remains the primary interest among a lot of research and excitement at ICML, where questions related to them would percolate even to the Bayesian nonparametrics and approximate inference sessions. It looks like a lot of the community has been paying more attention to introducing uncertainty in neural networks. (Deep) generative models are starting to get more headway now that approximate Bayesian inference algorithms—variational inference especially—are more tractable. Buzzwords now concentrate on variational autoencoders, probabilistic backpropagation, and deep latent variable models.</p>
+
+<p>On strictly the probabilistic side, there continues to be more work on increasing computational gains with subsampling, distributed implementations, and <a href="http://icml.cc/2015/?page_id=825#GaussianProcesses%C2%A0I">sparse GPs</a>.  There’s been a lot of interesting work on trying to merge various approximate inference algorithms in order to obtain a more unifying framework.</p>
+
+<p>ICML had this running theme on generalizability since <a href="https://research.facebook.com/researchers/1558013787807218/leon-bottou/">Leon Bottou</a>’s keynote talk, discussing the limitations of machine learning and the general inability for current algorithms to easily infer from small data sets as humans do. Transfer learning, zero-shot learning, and comments on approaches from cognitive science received more exposure.</p>
+
+<p>There was another theme on context and learning actual concepts: why should a picture of a car on a road have a higher probability of being classified as a car than a picture of a car in a swimming pool? It seems no matter how powerful our computer vision algorithms get, they still do not <em>grok</em> what a car is. The statistical answer is that it’s nigh impossible to learn a true “test” distribution that is not the same distribution as that generated for the training data; cars in swimming pools are simply something our algorithms haven’t seen much of, and we should be able to somehow weight the learning more on the tail of the distribution.</p>
+
+<h2 id="favorite-papers">Favorite papers</h2>
+
+<ul>
+  <li><a href="http://jmlr.org/proceedings/papers/v37/rezende15.pdf">Variational Inference with Normalizing Flows</a>: Danilo Rezende and Shakir Mohamed demonstrate how to increase model complexity in the variational approximation. Their approach is to use sequences of nonlinear transformations on a simple distribution, and the number of sequences—analogous to the number of “layers” in deep learning—characterizes the tradeoff of accuracy and scalability.</li>
+  <li><a href="http://jmlr.org/proceedings/papers/v37/maclaurin15.pdf">Gradient-based Hyperparameter Optimization through Reversible Learning</a>: Dougal Maclaurin, David Duvenaud, and Ryan Adams show how to backpropagate gradients for optimizing hyperparameters. It essentially reduces to performing automatic differentiation well, and the experiments they try this on are really cool, e.g., optimizing the learning rate schedule per layer of a NN, optimizing training data(!), and optimizing the initialization of SGD. How this will apply to Bayesian optimization for instance remains to be seen.</li>
+  <li><a href="http://jmlr.org/proceedings/papers/v37/betancourt15.pdf">The Fundamental Incompatibility of Scalable Hamiltonian Monte Carlo and Naive Data Subsampling</a>: Michael Betancourt explains that doing scalable HMC by subsampling data is biased, and thus your MCMC algorithm is no longer a principled procedure. He derives the biases analytically and explains the effect this should have on the practical usage of subsampling in MCMC.</li>
+  <li><a href="http://jmlr.org/proceedings/papers/v37/salimans15.pdf">Markov Chain Monte Carlo and Variational Inference: Bridging the Gap</a>: Tim Salimans, Durk Kingma, and Max Welling demonstrate how to perform MCMC within variational inference in order to also get better approximations. It’s an interesting combination of two inference algorithms based on the same tradeoff of accuracy and scalability, and it’s still an open question how much one can try to quantify this and thus design (or use) the appropriate algorithm for one’s setting.</li>
+  <li><a href="http://jmlr.org/proceedings/papers/v37/theis15.pdf">A trust-region method for stochastic variational inference with applications to streaming data</a>: Lucas Theis and Matt Hoffman show how to do variational inference more robustly, which has seen very little focus despite the crucial flaws of mean-field approximations based on their local optima and the lack of stability in general using the original stochastic gradient descent updates. Proximal stochastic gradient methods are what the optimization community has been focusing on because of this, and it’s nice to see such knowledge also apply to variational inference.</li>
+  <li><a href="http://jmlr.org/proceedings/papers/v37/zhangd15.pdf">Markov mixed membership models</a>: Aonan Zhang and John Paisely extend LDA so that the topics form a graph! They use Markov transitions to model the latent graph structure. It’s a simple idea that is certainly worth pursuing if we ever aim to do topic modelling on a large-scale setting, in which there is so much more latent topic structure to uncover. Bayesian nonparametric graphs are the future but we haven’t seen much application of it quite yet.</li>
+</ul>
+</section>
+</article>
+
+<!-- Post navigation -->
+
+
+<!-- Disqus -->
+
+
+    </div>
+    
+<script src="/blog/js/katex_init.js"></script>
+
+
+
+<footer class="site-footer">
+	<p class="text">© 2016 ・ <a class="plain" href="http://dustintran.com">dustintran.com</a>
+</p>
+</footer>
+
+
+  </body>
+</html>

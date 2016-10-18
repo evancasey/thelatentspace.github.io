@@ -1,0 +1,811 @@
+<!DOCTYPE html>
+<html class="no-js">
+  <head>
+	<meta charset="utf-8">
+	<title>Comparing elastic net to stochastic gradient descent for GLMs | Dustin Tran</title>
+	<meta name="description" content="The elastic net [3] provides a regularized objective function that meets a compromise between the two extremes of Lasso [2] and ridge regression. It takes in...">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<meta http-equiv="X-Frame-Options" content="sameorigin">
+
+	<!-- CSS -->
+	<link rel="stylesheet" href="/blog/css/main.css">
+
+	<!--Favicon-->
+	<link rel="shortcut icon" href="/blog/favicon.ico" type="image/x-icon">
+
+	<!-- Canonical -->
+	<link rel="canonical" href="http://dustintran.com/blog/comparing-elastic-net-to-stochastic-gradient-descent-for-glms">
+
+	<!-- RSS -->
+	<link rel="alternate" type="application/atom+xml" title="Dustin Tran" href="http://dustintran.com/blog/feed.xml" />
+
+	<!-- Font Awesome -->
+	<link href="//maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css" rel="stylesheet">
+
+	<!-- Google Fonts -->
+	
+	<link href="//fonts.googleapis.com/css?family=Source+Sans+Pro:400,700,700italic,400italic" rel="stylesheet" type="text/css">
+	
+
+	<!-- KaTeX -->
+	
+	<link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/KaTeX/0.6.0/katex.min.css">
+	<script src="//cdnjs.cloudflare.com/ajax/libs/KaTeX/0.6.0/katex.min.js"></script>
+	
+
+	<!-- Google Analytics -->
+	
+	<script>
+	(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+	(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+	m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+	})(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+	ga('create', 'UA-53150914-2', 'auto');
+	ga('send', 'pageview');
+	</script>
+	
+</head>
+
+  <body>
+    <header class="site-header">
+	<div class="branding">
+		
+		<a href="/blog/">
+			<img class="avatar" src="/blog/img/photo.png" alt=""/>
+		</a>
+		
+		<h1 class="site-title">
+			<a href="/blog/">Dustin Tran</a>
+		</h1>
+	</div>
+	<nav class="site-nav">
+		<ul>
+                        <li>
+				<a class="page-link" href="http://dustintran.com">
+					about　
+				</a>
+			</li>
+			
+			
+			<li>
+				<a class="page-link" href="/blog/2016-10-11-cross-entropy">
+					Derivative free reinforcement learning with the cross entropy method
+				</a>
+			</li>
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			<!-- Social icons from Font Awesome, if enabled -->
+			
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<li>
+	<a href="https://github.com/dustinvtran" title="Follow on GitHub">
+		<i class="fa fa-fw fa-github"></i>
+	</a>
+</li>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<li>
+	<a href="https://twitter.com/dustinvtran" title="Follow on Twitter">
+		<i class="fa fa-fw fa-twitter"></i>
+	</a>
+</li>
+
+
+
+
+
+
+		</ul>
+	</nav>
+</header>
+
+    <div class="content">
+      <article >
+  <header style="background-image: url('/blog/')">
+    <h1 class="title">Comparing elastic net to stochastic gradient descent for GLMs</h1>
+    <div style="padding-top:3%;"></div>
+    <div class="meta">
+      <span class="author">
+        By
+        
+          <a class="author-name" href="http://dustintran.com">Dustin Tran</a>
+        
+      </span>
+      <span class="date">Oct 25, 2014</span>
+      <ul>
+        
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<li>
+	<a href="https://github.com/dustinvtran" title="Follow on GitHub">
+		<i class="fa fa-fw fa-github"></i>
+	</a>
+</li>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<li>
+	<a href="https://twitter.com/dustinvtran" title="Follow on Twitter">
+		<i class="fa fa-fw fa-twitter"></i>
+	</a>
+</li>
+
+
+
+
+
+
+      </ul>
+    </div>
+  </header>
+  <section class="post-content"><p>The elastic net [3] provides a regularized objective function that meets a compromise between the two extremes of Lasso [2] and ridge regression. It takes into account both the Bayesian properties of ridge regression and also the need for sparse parameters via the <script type="math/tex">\ell_1</script> penalty from Lasso.</p>
+
+<p>Let <script type="math/tex">\{(x_i,y_i):~i=1,\ldots,N\}</script> be our observed data set where the responses <script type="math/tex">y_i\in\mathbb{R}</script> and the predictors <script type="math/tex">x_i\in\mathbb{R}^p</script>. Simply put, elastic net regularization is defined by solving</p>
+
+<script type="math/tex; mode=display">\min_{(\beta_0,\beta)\in\mathbb{R}^{p+1}} R_\lambda(\beta_0, \beta)
+= \min_{(\beta_0,\beta)\in\mathbb{R}^{p+1}} \left[
+\frac{1}{2N}
+\sum_{i=1}^N (y_i - \beta_0 - x_i^T\beta)^2
++ \lambda P_\alpha(\beta)
+\right],</script>
+
+<p>where the penalty function is defined as</p>
+
+<script type="math/tex; mode=display">P_\alpha(\beta) = (1-\alpha)\frac{1}{2}\|\beta\|_{\ell_2}^2 + \alpha\|\beta\|_{\ell_1}.</script>
+
+<p>This was applied to generalized linear models (GLMs) by Tibshirani, and also encoded as an R package for optimized calculations [1]. In particular, one can take advantage of the many sparse entries underlying the computation, as the dimension of the corresponding matrices written in sparse column format is effectively smaller; this leads to reduced runtimes of <script type="math/tex">O(pm)</script> as the inner product operations sum only over the nonzero terms (<script type="math/tex">m</script> being the number of nonzero terms, <script type="math/tex">p</script> the dimension of the predictors).</p>
+
+<p>In one example, Friedman et. al [1] effectively show that this method to compute elastic nets is more efficient and more accurate than LARS, another regression algorithm meant for high-dimensional problems. Statisticians tend to keep to their own methods for computation, so let’s try something different; let’s see what happens when under the same example, we run standard stochastic gradient descent (SGD) and its implicit variant as a comparison.</p>
+
+<p>We simulate data according to the example offered in the paper by Friedman et. al [1]: generate <script type="math/tex">N</script> Gaussian observations with <script type="math/tex">p</script> predictors, where each predictor pair <script type="math/tex">(X_j,~X_{j'})</script> has the same population correlation <script type="math/tex">\rho</script>. Range <script type="math/tex">\rho</script> from <script type="math/tex">0</script> to <script type="math/tex">0.95</script>, and generate outcomes</p>
+
+<script type="math/tex; mode=display">Y = \sum_{j=1}^p X_j\beta_j + k\cdot Z,</script>
+
+<p>where <script type="math/tex">\beta_j=(-1)^j\exp(-2(j-1)/20)</script>, <script type="math/tex">Z\sim N(0,1)</script>, and <script type="math/tex">k</script> is chosen so that the signal-to-noise ratio is <script type="math/tex">3.0</script>.</p>
+
+<p>We use the R package <code class="highlighter-rouge">glmnet</code> in order to emulate the times displayed on Table 1 of the paper, with both the “naive” and “covariance” variants of the algorithm. As for SGD and implicit SGD, let <script type="math/tex">b^2=\rho/(1-\rho)</script>, so then the covariance matrix can be rewritten as
+<script type="math/tex">\mathbb{E}[xx^T] = b^2U+I.</script>
+Then for computing standard SGD, we shall use the learning rate</p>
+
+<script type="math/tex; mode=display">\alpha_n = \frac{\alpha}{\frac{\alpha}{\gamma_0} +n},</script>
+
+<p>where <script type="math/tex">\gamma_0=1/\mathrm{trace}(A) = 1/((1+b^2)p)</script> and <script type="math/tex">\alpha</script> is the minimal eigenvalue  <script type="math/tex">\lambda_0=1</script>. (The latter is true because all eigenvalues are 1 excluding one which is <script type="math/tex">\lambda=1+pb^2</script>. One can prove this easily by <script type="math/tex">(b^2U+I)x=\lambda x</script> iff <script type="math/tex">(1-\lambda)x = -b^2 S\cdot 1</script>, where <script type="math/tex">S=\sum x_i</script>.) As for implicit SGD, we’ll just use <script type="math/tex">\alpha_n=\alpha/n</script>.</p>
+
+<p>The following is run on a 2.6 Ghz i5 core processor.</p>
+
+<h2 id="runtime-s">Runtime (s)</h2>
+<table border="1" style="width:100%; text-align:center;">
+<thead>
+  <tr>
+    <th>dimension space</th>
+    <th>method</th>
+    <th>$$\rho=0$$</th>
+    <th>$$\rho=0.10$$</th>
+    <th>$$\rho=0.20$$</th>
+    <th>$$\rho=0.50$$</th>
+    <th>$$\rho=0.90$$</th>
+    <th>$$\rho=0.95$$</th>
+  </tr>
+</thead>
+<tbody>
+  <tr>
+    <td>$$N=1000,~p=100$$</td>
+    <td>covariance (glmnet)</td>
+    <td>$$0.011$$</td>
+    <td>$$0.010$$</td>
+    <td>$$0.010$$</td>
+    <td>$$0.011$$</td>
+    <td>$$0.015$$</td>
+    <td>$$0.017$$</td>
+  </tr>
+  <tr>
+    <td></td>
+    <td>naive (glmnet)</td>
+    <td>$$0.032$$</td>
+    <td>$$0.033$$</td>
+    <td>$$0.037$$</td>
+    <td>$$0.048$$</td>
+    <td>$$0.134$$</td>
+    <td>$$0.177$$</td>
+  </tr>
+  <tr>
+    <td></td>
+    <td>SGD</td>
+    <td>$$0.020$$</td>
+    <td>$$0.021$$</td>
+    <td>$$0.021$$</td>
+    <td>$$0.023$$</td>
+    <td>$$0.019$$</td>
+    <td>$$0.020$$</td>
+  </tr>
+  <tr>
+    <td></td>
+    <td>implicit SGD</td>
+    <td>$$0.020$$</td>
+    <td>$$0.020$$</td>
+    <td>$$0.019$$</td>
+    <td>$$0.019$$</td>
+    <td>$$0.019$$</td>
+    <td>$$0.018$$</td>
+  </tr>
+  <tr></tr>
+  <tr>
+    <td>$$N=5000,~p=100$$</td>
+    <td>covariance (glmnet)</td>
+    <td>$$0.035$$</td>
+    <td>$$0.033$$</td>
+    <td>$$0.034$$</td>
+    <td>$$0.037$$</td>
+    <td>$$0.039$$</td>
+    <td>$$0.040$$</td>
+  </tr>
+  <tr>
+    <td></td>
+    <td>naive (glmnet)</td>
+    <td>$$0.119$$</td>
+    <td>$$0.121$$</td>
+    <td>$$0.139$$</td>
+    <td>$$0.179$$</td>
+    <td>$$0.490$$</td>
+    <td>$$0.834$$</td>
+  </tr>
+  <tr>
+    <td></td>
+    <td>SGD</td>
+    <td>$$0.118$$</td>
+    <td>$$0.124$$</td>
+    <td>$$0.113$$</td>
+    <td>$$0.112$$</td>
+    <td>$$0.113$$</td>
+    <td>$$0.112$$</td>
+  </tr>
+  <tr>
+    <td></td>
+    <td>implicit SGD</td>
+    <td>$$0.105$$</td>
+    <td>$$0.104$$</td>
+    <td>$$0.105$$</td>
+    <td>$$0.104$$</td>
+    <td>$$0.105$$</td>
+    <td>$$0.104$$</td>
+  </tr>
+  <tr></tr>
+  <tr>
+    <td>$$N=100,~p=1000$$</td>
+    <td>covariance (glmnet)</td>
+    <td>$$0.041$$</td>
+    <td>$$0.041$$</td>
+    <td>$$0.045$$</td>
+    <td>$$0.061$$</td>
+    <td>$$0.098$$</td>
+    <td>-</td>
+  </tr>
+  <tr>
+    <td></td>
+    <td>naive (glmnet)</td>
+    <td>$$0.023$$</td>
+    <td>$$0.020$$</td>
+    <td>$$0.025$$</td>
+    <td>$$0.032$$</td>
+    <td>$$0.046$$</td>
+    <td>-</td>
+  </tr>
+  <tr>
+    <td></td>
+    <td>SGD</td>
+    <td>$$0.007$$</td>
+    <td>$$0.007$$</td>
+    <td>$$0.006$$</td>
+    <td>$$0.008$$</td>
+    <td>$$0.006$$</td>
+    <td>-</td>
+  </tr>
+  <tr>
+    <td></td>
+    <td>implicit SGD</td>
+    <td>$$0.007$$</td>
+    <td>$$0.007$$</td>
+    <td>$$0.006$$</td>
+    <td>$$0.006$$</td>
+    <td>$$0.006$$</td>
+    <td>-</td>
+  </tr>
+  <tr></tr>
+  <tr>
+    <td>$$N=100,~p=5000$$</td>
+    <td>covariance (glmnet)</td>
+    <td>$$0.204$$</td>
+    <td>$$0.238$$</td>
+    <td>$$0.243$$</td>
+    <td>$$0.314$$</td>
+    <td>$$0.517$$</td>
+    <td>$$0.615$$</td>
+  </tr>
+  <tr>
+    <td></td>
+    <td>naive (glmnet)</td>
+    <td>$$0.075$$</td>
+    <td>$$0.093$$</td>
+    <td>$$0.071$$</td>
+    <td>$$0.082$$</td>
+    <td>$$0.098$$</td>
+    <td>$$0.145$$</td>
+  </tr>
+  <tr>
+    <td></td>
+    <td>SGD</td>
+    <td>$$0.031$$</td>
+    <td>$$0.031$$</td>
+    <td>$$0.032$$</td>
+    <td>$$0.031$$</td>
+    <td>$$0.029$$</td>
+    <td>$$0.033$$</td>
+  </tr>
+  <tr>
+    <td></td>
+    <td>implicit SGD</td>
+    <td>$$0.029$$</td>
+    <td>$$0.028$$</td>
+    <td>$$0.029$$</td>
+    <td>$$0.028$$</td>
+    <td>$$0.028$$</td>
+    <td>$$0.030$$</td>
+  </tr>
+  <tr></tr>
+  <tr>
+    <td>$$N=100,~p=20000$$</td>
+    <td>covariance (glmnet)</td>
+    <td>$$0.923$$</td>
+    <td>$$0.906$$</td>
+    <td>$$0.955$$</td>
+    <td>$$1.313$$</td>
+    <td>$$2.082$$</td>
+    <td>$$2.927$$</td>
+  </tr>
+  <tr>
+    <td></td>
+    <td>naive (glmnet)</td>
+    <td>$$0.381$$</td>
+    <td>$$0.377$$</td>
+    <td>$$0.376$$</td>
+    <td>$$0.390$$</td>
+    <td>$$0.405$$</td>
+    <td>$$0.736$$</td>
+  </tr>
+  <tr>
+    <td></td>
+    <td>SGD</td>
+    <td>$$0.152$$</td>
+    <td>$$0.147$$</td>
+    <td>$$0.148$$</td>
+    <td>$$0.156$$</td>
+    <td>$$0.147$$</td>
+    <td>$$0.153$$</td>
+  </tr>
+  <tr>
+    <td></td>
+    <td>implicit SGD</td>
+    <td>$$0.140$$</td>
+    <td>$$0.170$$</td>
+    <td>$$0.146$$</td>
+    <td>$$0.143$$</td>
+    <td>$$0.137$$</td>
+    <td>$$0.145$$</td>
+  </tr>
+  <tr></tr>
+  <tr>
+    <td>$$N=100,~p=50000$$</td>
+    <td>covariance (glmnet)</td>
+    <td>$$2.280$$</td>
+    <td>$$2.321$$</td>
+    <td>$$2.322$$</td>
+    <td>$$2.693$$</td>
+    <td>$$4.901$$</td>
+    <td>$$6.176$$</td>
+  </tr>
+  <tr>
+    <td></td>
+    <td>naive (glmnet)</td>
+    <td>$$0.745$$</td>
+    <td>$$0.770$$</td>
+    <td>$$0.753$$</td>
+    <td>$$0.775$$</td>
+    <td>$$0.996$$</td>
+    <td>$$1.735$$</td>
+  </tr>
+  <tr>
+    <td></td>
+    <td>SGD</td>
+    <td>$$0.421$$</td>
+    <td>$$0.392$$</td>
+    <td>$$0.379$$</td>
+    <td>$$0.383$$</td>
+    <td>$$0.390$$</td>
+    <td>$$0.393$$</td>
+  </tr>
+  <tr>
+    <td></td>
+    <td>implicit SGD</td>
+    <td>$$0.363$$</td>
+    <td>$$0.370$$</td>
+    <td>$$0.366$$</td>
+    <td>$$0.374$$</td>
+    <td>$$0.368$$</td>
+    <td>$$0.370$$</td>
+  </tr>
+</tbody>
+</table>
+
+<h2 id="mean-squared-error">Mean Squared Error</h2>
+<table border="1" style="width:100%; text-align:center;">
+<thead>
+  <tr>
+    <th>dimension space</th>
+    <th>method</th>
+    <th>$$\rho=0$$</th>
+    <th>$$\rho=0.10$$</th>
+    <th>$$\rho=0.20$$</th>
+    <th>$$\rho=0.50$$</th>
+    <th>$$\rho=0.90$$</th>
+    <th>$$\rho=0.95$$</th>
+  </tr>
+</thead>
+<tbody>
+  <tr>
+    <td>$$N=1000,~p=100$$</td>
+    <td>covariance (glmnet)</td>
+    <td>$$0.045$$</td>
+    <td>$$0.045$$</td>
+    <td>$$0.043$$</td>
+    <td>$$0.048$$</td>
+    <td>$$0.054$$</td>
+    <td>$$0.075$$</td>
+  </tr>
+  <tr>
+    <td></td>
+    <td>naive (glmnet)</td>
+    <td>$$0.045$$</td>
+    <td>$$0.045$$</td>
+    <td>$$0.043$$</td>
+    <td>$$0.048$$</td>
+    <td>$$0.054$$</td>
+    <td>$$0.075$$</td>
+  </tr>
+  <tr>
+    <td></td>
+    <td>SGD</td>
+    <td>$$0.054$$</td>
+    <td>$$0.057$$</td>
+    <td>$$0.059$$</td>
+    <td>$$0.062$$</td>
+    <td>$$0.209$$</td>
+    <td>$$0.228$$</td>
+  </tr>
+  <tr>
+    <td></td>
+    <td>implicit SGD</td>
+    <td>$$0.054$$</td>
+    <td>$$0.057$$</td>
+    <td>$$0.058$$</td>
+    <td>$$0.057$$</td>
+    <td>$$0.091$$</td>
+    <td>$$0.114$$</td>
+  </tr>
+  <tr></tr>
+  <tr>
+    <td>$$N=5000,~p=100$$</td>
+    <td>covariance (glmnet)</td>
+    <td>$$0.026$$</td>
+    <td>$$0.028$$</td>
+    <td>$$0.028$$</td>
+    <td>$$0.031$$</td>
+    <td>$$0.051$$</td>
+    <td>$$0.072$$</td>
+  </tr>
+  <tr>
+    <td></td>
+    <td>naive (glmnet)</td>
+    <td>$$0.026$$</td>
+    <td>$$0.028$$</td>
+    <td>$$0.028$$</td>
+    <td>$$0.031$$</td>
+    <td>$$0.053$$</td>
+    <td>$$0.072$$</td>
+  </tr>
+  <tr>
+    <td></td>
+    <td>SGD</td>
+    <td>$$0.020$$</td>
+    <td>$$0.020$$</td>
+    <td>$$0.021$$</td>
+    <td>$$0.022$$</td>
+    <td>$$0.146$$</td>
+    <td>$$0.206$$</td>
+  </tr>
+  <tr>
+    <td></td>
+    <td>implicit SGD</td>
+    <td>$$0.020$$</td>
+    <td>$$0.020$$</td>
+    <td>$$0.021$$</td>
+    <td>$$0.022$$</td>
+    <td>$$0.036$$</td>
+    <td>$$0.046$$</td>
+  </tr>
+  <tr></tr>
+  <tr>
+    <td>$$N=100,~p=1000$$</td>
+    <td>covariance (glmnet)</td>
+    <td>$$0.063$$</td>
+    <td>$$0.060$$</td>
+    <td>$$0.061$$</td>
+    <td>$$0.057$$</td>
+    <td>$$0.066$$</td>
+    <td>$$0.071$$</td>
+  </tr>
+  <tr>
+    <td></td>
+    <td>naive (glmnet)</td>
+    <td>$$0.063$$</td>
+    <td>$$0.060$$</td>
+    <td>$$0.061$$</td>
+    <td>$$0.057$$</td>
+    <td>$$0.066$$</td>
+    <td>$$0.071$$</td>
+  </tr>
+  <tr>
+    <td></td>
+    <td>SGD</td>
+    <td>$$0.071$$</td>
+    <td>$$0.072$$</td>
+    <td>$$0.072$$</td>
+    <td>$$0.073$$</td>
+    <td>$$0.074$$</td>
+    <td>$$0.074$$</td>
+  </tr>
+  <tr>
+    <td></td>
+    <td>implicit SGD</td>
+    <td>$$0.071$$</td>
+    <td>$$0.071$$</td>
+    <td>$$0.071$$</td>
+    <td>$$0.072$$</td>
+    <td>$$0.073$$</td>
+    <td>$$0.073$$</td>
+  </tr>
+  <tr></tr>
+  <tr>
+    <td>$$N=100,~p=5000$$</td>
+    <td>covariance (glmnet)</td>
+    <td>$$0.030$$</td>
+    <td>$$0.031$$</td>
+    <td>$$0.031$$</td>
+    <td>$$0.033$$</td>
+    <td>$$0.031$$</td>
+    <td>$$0.033$$</td>
+  </tr>
+  <tr>
+    <td></td>
+    <td>naive (glmnet)</td>
+    <td>$$0.030$$</td>
+    <td>$$0.031$$</td>
+    <td>$$0.031$$</td>
+    <td>$$0.033$$</td>
+    <td>$$0.031$$</td>
+    <td>$$0.033$$</td>
+  </tr>
+  <tr>
+    <td></td>
+    <td>SGD</td>
+    <td>$$0.033$$</td>
+    <td>$$0.032$$</td>
+    <td>$$0.033$$</td>
+    <td>$$0.033$$</td>
+    <td>$$0.033$$</td>
+    <td>$$0.033$$</td>
+  </tr>
+  <tr>
+    <td></td>
+    <td>implicit SGD</td>
+    <td>$$0.033$$</td>
+    <td>$$0.032$$</td>
+    <td>$$0.033$$</td>
+    <td>$$0.033$$</td>
+    <td>$$0.033$$</td>
+    <td>$$0.033$$</td>
+  </tr>
+  <tr></tr>
+  <tr>
+    <td>$$N=100,~p=20000$$</td>
+    <td>covariance (glmnet)</td>
+    <td>$$0.016$$</td>
+    <td>$$0.015$$</td>
+    <td>$$0.015$$</td>
+    <td>$$0.015$$</td>
+    <td>$$0.016$$</td>
+    <td>$$0.016$$</td>
+  </tr>
+  <tr>
+    <td></td>
+    <td>naive (glmnet)</td>
+    <td>$$0.016$$</td>
+    <td>$$0.015$$</td>
+    <td>$$0.015$$</td>
+    <td>$$0.015$$</td>
+    <td>$$0.016$$</td>
+    <td>$$0.016$$</td>
+  </tr>
+  <tr>
+    <td></td>
+    <td>SGD</td>
+    <td>$$0.016$$</td>
+    <td>$$0.016$$</td>
+    <td>$$0.016$$</td>
+    <td>$$0.016$$</td>
+    <td>$$0.016$$</td>
+    <td>$$0.016$$</td>
+  </tr>
+  <tr>
+    <td></td>
+    <td>implicit SGD</td>
+    <td>$$0.016$$</td>
+    <td>$$0.016$$</td>
+    <td>$$0.016$$</td>
+    <td>$$0.016$$</td>
+    <td>$$0.016$$</td>
+    <td>$$0.016$$</td>
+  </tr>
+  <tr></tr>
+  <tr>
+    <td>$$N=100,~p=50000$$</td>
+    <td>covariance (glmnet)</td>
+    <td>$$0.010$$</td>
+    <td>$$0.010$$</td>
+    <td>$$0.010$$</td>
+    <td>$$0.010$$</td>
+    <td>$$0.010$$</td>
+    <td>$$0.010$$</td>
+  </tr>
+  <tr>
+    <td></td>
+    <td>naive (glmnet)</td>
+    <td>$$0.010$$</td>
+    <td>$$0.010$$</td>
+    <td>$$0.010$$</td>
+    <td>$$0.010$$</td>
+    <td>$$0.010$$</td>
+    <td>$$0.010$$</td>
+  </tr>
+  <tr>
+    <td></td>
+    <td>SGD</td>
+    <td>$$0.010$$</td>
+    <td>$$0.010$$</td>
+    <td>$$0.010$$</td>
+    <td>$$0.010$$</td>
+    <td>$$0.010$$</td>
+    <td>$$0.010$$</td>
+  </tr>
+  <tr>
+    <td></td>
+    <td>implicit SGD</td>
+    <td>$$0.010$$</td>
+    <td>$$0.010$$</td>
+    <td>$$0.010$$</td>
+    <td>$$0.010$$</td>
+    <td>$$0.010$$</td>
+    <td>$$0.010$$</td>
+  </tr>
+</tbody>
+</table>
+
+<p><br /></p>
+
+<p>Stochastic gradient descent is obviously faster for large <script type="math/tex">p</script>. In particular, it achieves much faster performance after the <script type="math/tex">p\geq 1000</script> cases, and with competitive mean squared error if <script type="math/tex">N</script> or <script type="math/tex">P</script> is large (<script type="math/tex">N</script> or <script type="math/tex">p\geq 1000</script>). Empirically speaking, it’s quite safe to conclude that stochastic gradient descent is the better scalable algorithm. Moreover, SGD’s error is independent of the correlation, so while elastic net is faster for small <script type="math/tex">N</script> or <script type="math/tex">p</script>, we still recommend using SGD in the case of highly correlated variables and small <script type="math/tex">N</script> or <script type="math/tex">p</script>. The better estimate provided by SGD may be worth more than the slightly slower runtime.</p>
+
+<p>We can also run the same simulation varying <script type="math/tex">N</script> and <script type="math/tex">p</script> with averaged SGD (ASGD), which takes roughly the same time as standard SGD but with an improved estimate. The results would essentially be the same, only that the cutoff for a better estimate for ASGD over elastic net would be at a smaller <script type="math/tex">N</script> than standard SGD’s.</p>
+
+<p>The takeaway message? SGD is awesome.</p>
+
+<p>[1] J. Friedman, T. Hastie, and R. Tibshirani. Regularization paths for generalized linear
+models via coordinate descent. <em>Journal of statistical software</em>, 33(1):1, 2010.</p>
+
+<p>[2] R. Tibshirani. Regression Shrinkage and Selection via the Lasso. <em>Journal of the Royal
+Statistical Society B</em>, 58:267–288, 1996.</p>
+
+<p>[3] H. Zou H, T. Hastie. Regularization and Variable Selection via the Elastic Net. <em>Journal
+of the Royal Statistical Society B</em>, 67(2):301–320, 2005.</p>
+</section>
+</article>
+
+<!-- Post navigation -->
+
+
+<!-- Disqus -->
+
+
+    </div>
+    
+<script src="/blog/js/katex_init.js"></script>
+
+
+
+<footer class="site-footer">
+	<p class="text">© 2016 ・ <a class="plain" href="http://dustintran.com">dustintran.com</a>
+</p>
+</footer>
+
+
+  </body>
+</html>

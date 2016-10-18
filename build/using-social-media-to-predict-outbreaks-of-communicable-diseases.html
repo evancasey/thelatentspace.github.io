@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html class="no-js">
+  <head>
+	<meta charset="utf-8">
+	<title>Using social media to predict outbreaks of communicable diseases | Dustin Tran</title>
+	<meta name="description" content="">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<meta http-equiv="X-Frame-Options" content="sameorigin">
+
+	<!-- CSS -->
+	<link rel="stylesheet" href="/blog/css/main.css">
+
+	<!--Favicon-->
+	<link rel="shortcut icon" href="/blog/favicon.ico" type="image/x-icon">
+
+	<!-- Canonical -->
+	<link rel="canonical" href="http://dustintran.com/blog/using-social-media-to-predict-outbreaks-of-communicable-diseases">
+
+	<!-- RSS -->
+	<link rel="alternate" type="application/atom+xml" title="Dustin Tran" href="http://dustintran.com/blog/feed.xml" />
+
+	<!-- Font Awesome -->
+	<link href="//maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css" rel="stylesheet">
+
+	<!-- Google Fonts -->
+	
+	<link href="//fonts.googleapis.com/css?family=Source+Sans+Pro:400,700,700italic,400italic" rel="stylesheet" type="text/css">
+	
+
+	<!-- KaTeX -->
+	
+	<link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/KaTeX/0.6.0/katex.min.css">
+	<script src="//cdnjs.cloudflare.com/ajax/libs/KaTeX/0.6.0/katex.min.js"></script>
+	
+
+	<!-- Google Analytics -->
+	
+	<script>
+	(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+	(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+	m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+	})(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+	ga('create', 'UA-53150914-2', 'auto');
+	ga('send', 'pageview');
+	</script>
+	
+</head>
+
+  <body>
+    <header class="site-header">
+	<div class="branding">
+		
+		<a href="/blog/">
+			<img class="avatar" src="/blog/img/photo.png" alt=""/>
+		</a>
+		
+		<h1 class="site-title">
+			<a href="/blog/">Dustin Tran</a>
+		</h1>
+	</div>
+	<nav class="site-nav">
+		<ul>
+                        <li>
+				<a class="page-link" href="http://dustintran.com">
+					about　
+				</a>
+			</li>
+			
+			
+			<li>
+				<a class="page-link" href="/blog/2016-10-11-cross-entropy">
+					Derivative free reinforcement learning with the cross entropy method
+				</a>
+			</li>
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			<!-- Social icons from Font Awesome, if enabled -->
+			
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<li>
+	<a href="https://github.com/dustinvtran" title="Follow on GitHub">
+		<i class="fa fa-fw fa-github"></i>
+	</a>
+</li>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<li>
+	<a href="https://twitter.com/dustinvtran" title="Follow on Twitter">
+		<i class="fa fa-fw fa-twitter"></i>
+	</a>
+</li>
+
+
+
+
+
+
+		</ul>
+	</nav>
+</header>
+
+    <div class="content">
+      <article >
+  <header style="background-image: url('/blog/')">
+    <h1 class="title">Using social media to predict outbreaks of communicable diseases</h1>
+    <div style="padding-top:3%;"></div>
+    <div class="meta">
+      <span class="author">
+        By
+        
+          <a class="author-name" href="http://dustintran.com">Dustin Tran</a>
+        
+      </span>
+      <span class="date">Sep 16, 2014</span>
+      <ul>
+        
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<li>
+	<a href="https://github.com/dustinvtran" title="Follow on GitHub">
+		<i class="fa fa-fw fa-github"></i>
+	</a>
+</li>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<li>
+	<a href="https://twitter.com/dustinvtran" title="Follow on Twitter">
+		<i class="fa fa-fw fa-twitter"></i>
+	</a>
+</li>
+
+
+
+
+
+
+      </ul>
+    </div>
+  </header>
+  <section class="post-content"><p><img src="/blog/assets/2014-09-16-figure.jpg" alt="" /></p>
+
+<p>“Big Data” analysis has often seen applications toward bettering already well-integrated systems; it is usually leveraged as a strengthener for pre-existing infrastructures rather than as a tool for building frameworks from scratch.  The latter application has recently been surging as a way to disrupt industries and dated methodologies, and Mauricio Santillana’s topic belongs in this group: analyze the endless stream of social media in order to prevent critical dangers—specifically outbreaks of communicable diseases—in the world.</p>
+
+<p>It’s a noble idea, and one absolutely crucial given that the current alternative is to wait weeks before any officiality hits the news. Google Flu Trends has already tried modelling this with relatively poor success <a href="http://dash.harvard.edu/handle/1/12016836">[1]</a>, leading the media to have its doubt about the success of such a model.</p>
+
+<p>The revised model proposed by Santillana et. al <a href="http://www.ajpmonline.org/article/S0749-3797(14)00238-4/abstract">[2]</a> is surprisingly simple: take the most correlated search terms from Google, use them as your parameters, run LASSO regression, and that’s it. Not only is the performance improved with lower mean squared error, the data that was used to construct the revised models is much much smaller than the original’s (only 5 weeks of data compared to the span of many years). What’s perhaps more surprising than the simplicity of the model is how Google didn’t think of this before. It is peculiar that the previous GFT (Google Flu Trends) model was based on univariate analysis instead, where the single input is an aggregate of all the correlated search terms. This leaves zero room for any weights assigned to each parameter, from which the model can then assign and better account for error.  The features included in GFT were also human curated rather than collected empirically (what a red flag!).</p>
+
+<p>Given that the model produces a continuous stream of numbers, it would be useful to build an ROC curve in order to weight more against false negatives than false positives. After all, it seems more important that we do not fail to report an outbreak, rather than to report outbreaks that don’t actually happen. It would then be trivial to determine a cutoff (as well as some credible/confidence interval) in order to report just how statistically significant our belief is.</p>
+
+<p>Another natural consideration is to further improve performance by testing other algorithms (SVMs most come to mind). It seems the significant change in the revised approach is the multivariate consideration, and having had the pleasure to speak with Mauricio personally, there isn’t actually any reason why to stick with LASSO. It was only a good first choice given sparsity reasons from the <script type="math/tex">L_1</script> norm.</p>
+
+<p>Further yet, why even use only queried search terms from Google and not other sources, or not integrate other well known and important variables? Several features currently reported significant to the model seem only to do so because they’re highly correlated with something else, such as seasonal changes. Hence, instead of including a search term such as “gymnastics meet” which would only act as a proxy for time, we may as well include time itself.</p>
+
+<p>We also have knowledge a prior that modelling based on search terms is bound to exaggerate the output of maximum values of the function given compounding media hype. If more sources are ever added we can attempt to balance these through an extra layer of added weights assigned to the source.</p>
+</section>
+</article>
+
+<!-- Post navigation -->
+
+
+<!-- Disqus -->
+
+
+    </div>
+    
+<script src="/blog/js/katex_init.js"></script>
+
+
+
+<footer class="site-footer">
+	<p class="text">© 2016 ・ <a class="plain" href="http://dustintran.com">dustintran.com</a>
+</p>
+</footer>
+
+
+  </body>
+</html>

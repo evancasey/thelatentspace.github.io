@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html class="no-js">
+  <head>
+	<meta charset="utf-8">
+	<title>Variational auto-encoders do not train complex generative models | Dustin Tran</title>
+	<meta name="description" content="There is a tutorial on variational auto-encoders which popped up on my arXiv radar this week. Thanks to Carl Doersch for writing this tutorial! As a research...">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<meta http-equiv="X-Frame-Options" content="sameorigin">
+
+	<!-- CSS -->
+	<link rel="stylesheet" href="/blog/css/main.css">
+
+	<!--Favicon-->
+	<link rel="shortcut icon" href="/blog/favicon.ico" type="image/x-icon">
+
+	<!-- Canonical -->
+	<link rel="canonical" href="http://dustintran.com/blog/variational-auto-encoders-do-not-train-complex-generative-models">
+
+	<!-- RSS -->
+	<link rel="alternate" type="application/atom+xml" title="Dustin Tran" href="http://dustintran.com/blog/feed.xml" />
+
+	<!-- Font Awesome -->
+	<link href="//maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css" rel="stylesheet">
+
+	<!-- Google Fonts -->
+	
+	<link href="//fonts.googleapis.com/css?family=Source+Sans+Pro:400,700,700italic,400italic" rel="stylesheet" type="text/css">
+	
+
+	<!-- KaTeX -->
+	
+	<link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/KaTeX/0.6.0/katex.min.css">
+	<script src="//cdnjs.cloudflare.com/ajax/libs/KaTeX/0.6.0/katex.min.js"></script>
+	
+
+	<!-- Google Analytics -->
+	
+	<script>
+	(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+	(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+	m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+	})(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+	ga('create', 'UA-53150914-2', 'auto');
+	ga('send', 'pageview');
+	</script>
+	
+</head>
+
+  <body>
+    <header class="site-header">
+	<div class="branding">
+		
+		<a href="/blog/">
+			<img class="avatar" src="/blog/img/photo.png" alt=""/>
+		</a>
+		
+		<h1 class="site-title">
+			<a href="/blog/">Dustin Tran</a>
+		</h1>
+	</div>
+	<nav class="site-nav">
+		<ul>
+                        <li>
+				<a class="page-link" href="http://dustintran.com">
+					about　
+				</a>
+			</li>
+			
+			
+			<li>
+				<a class="page-link" href="/blog/2016-10-11-cross-entropy">
+					Derivative free reinforcement learning with the cross entropy method
+				</a>
+			</li>
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			<!-- Social icons from Font Awesome, if enabled -->
+			
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<li>
+	<a href="https://github.com/dustinvtran" title="Follow on GitHub">
+		<i class="fa fa-fw fa-github"></i>
+	</a>
+</li>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<li>
+	<a href="https://twitter.com/dustinvtran" title="Follow on Twitter">
+		<i class="fa fa-fw fa-twitter"></i>
+	</a>
+</li>
+
+
+
+
+
+
+		</ul>
+	</nav>
+</header>
+
+    <div class="content">
+      <article >
+  <header style="background-image: url('/blog/')">
+    <h1 class="title">Variational auto-encoders do not train complex generative models</h1>
+    <div style="padding-top:3%;"></div>
+    <div class="meta">
+      <span class="author">
+        By
+        
+          <a class="author-name" href="http://dustintran.com">Dustin Tran</a>
+        
+      </span>
+      <span class="date">Jun 23, 2016</span>
+      <ul>
+        
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<li>
+	<a href="https://github.com/dustinvtran" title="Follow on GitHub">
+		<i class="fa fa-fw fa-github"></i>
+	</a>
+</li>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<li>
+	<a href="https://twitter.com/dustinvtran" title="Follow on Twitter">
+		<i class="fa fa-fw fa-twitter"></i>
+	</a>
+</li>
+
+
+
+
+
+
+      </ul>
+    </div>
+  </header>
+  <section class="post-content"><p>There is a <a href="http://arxiv.org/abs/1606.05908">tutorial on variational auto-encoders</a> which popped up on my arXiv radar this week. Thanks to Carl Doersch for writing this tutorial! As a researcher in this area, I believe there is sorely a need for an exposition of recent developments in variational inference. Variational inference’s application for enabling deep generative models has exploded in the past few years. This tutorial is a great step in that direction. Inspired by this and  discussions with others during ICML, I’d like to make a few comments to clarify misunderstandings that are pervasive among newcomers to variational inference, Bayesian analysis, and/or auto-encoders.</p>
+
+<p>Variational auto-encoders are <em>not</em> a way to train generative models. The generative model is <em>part</em> of the variational auto-encoder, which is typically a deep latent Gaussian model (Rezende et al., 2014). Training generative models is done by inference, typically variational inference (Hinton and Van Camp, 1993; Waterhouse et al., 1996) with an inference network. This model-inference combination is what defines a variational auto-encoder (Kingma and Welling, 2014) and more classically a Helmholtz machine (Dayan et al., 1995). Making precise the separate components of model and inference is crucial for extensibility. For example, how can we build on the inference, leveraging Monte Carlo methods (MacKay and Gibbs, 1999; Salimans et al., 2015), or build on the modeling, leveraging recurrent compositions (Gregor et al., 2015)? If I learned anything at my time at Harvard statistics with people like Don Rubin, I learned that being precise about our language prevents our discourse from being ambiguous and our terms from becoming overloaded.</p>
+
+<p>Generative models are usually motivated from their immediate application of generating data that look like the training data. Variational auto-encoders, like, say, generative adversarial networks, are most generally a way to both postulate and infer complex data generative processes. This is possibly for unsupervised tasks, possibly supervised tasks, semi-supervised tasks, or even causal inferences. They are part of an underlying statistical methodology.<sup>1</sup> This methodology simply frames models as distributions over data and latent variables, allowing models to address a broad array of downstream tasks with any size of data. For example, deep generative models can achieve “state-of-the-art” for supervised learning on small amounts of data (Damianou and Lawrence, 2013) and generalization with few examples (Salakhutdhinov et al., 2013).</p>
+
+<p>The neural network used in the encoder (variational distribution) does not lead to any richer approximating distribution. It is a way to amortize inference such that the number of parameters does not grow with the size of the data (an incredible feat, but not one for expressivity!) (Stuhlmüller et al., 2013). This is better explained from the perspective of variational inference than auto-encoders. For example, suppose we have a model with latent variables that are Gaussian a priori (as in VAEs). We may choose a fully factorized Gaussian as the variational distribution, where each latent variable is rendered independent. The inference network takes data as input and outputs the local variational parameters relevant to each data point. The optimal inference network outputs the set of Gaussian parameters which maximizes the variational objective. This means a variational auto-encoder with a perfect inference network can only do as well as a fully factorized Gaussian with no inference network.<sup>2</sup></p>
+
+<p><sup>1</sup> The underlying statistical methodology of latent variable models is typically Bayesian. However, the distinction between frequentist and Bayesian models is practically none, e.g., Harville (1977).</p>
+
+<p><sup>2</sup> Much recent work, including my own, has tried to improve this simple approximation to improve our approximate inference. I invite you to the incredible developments since the past year: Rezende and Mohamed, 2015; Salimans et al., 2015; Tran et al., 2015; Tran et al., 2016; Burda et al., 2016; Ranganath et al., 2016; Maaløe et al., 2016; Mnih and Rezende, 2016; Louizos et al., 2016; Johnson et al., 2016; Dinh et al., 2016; Kingma et al., 2016.</p>
+
+<h2 id="references">References</h2>
+
+<ul>
+  <li>Burda, Y., Grosse, R., &amp; Salakhutdinov, R. (2016). Importance Weighted Autoencoders. In <em>International Conference on Learning Representations.</em></li>
+  <li>Damianou, A. C., &amp; Lawrence, N. D. (2013). Deep Gaussian Processes. In <em>Artificial Intelligence and Statistics.</em></li>
+  <li>Dayan, P., Hinton, G. E., Neal, R. M., &amp; Zemel, R. S. (1995). The Helmholtz Machine. Neural Computation, 7(5), 889–904. http://doi.org/10.1162/neco.1995.7.5.889</li>
+  <li>Dinh, L., Sohl-Dickstein, J., &amp; Bengio, S. (2016). Density estimation using Real NVP. <em>arXiv.org.</em></li>
+  <li>Harville, D. A (1977). Maximum likelihood approaches to variance component estimation and to related problems. <em>Journal of the American Statistical Association</em>, 72(358):320–338.</li>
+  <li>Hinton, G. and Van Camp, D (1993). Keeping the neural networks simple by minimizing the description length of the weights. In <em>Computational Learning Theory</em>, pp. 5–13. ACM.</li>
+  <li>Johnson, M. J., Duvenaud, D., Wiltschko, A. B., Datta, S. R., &amp; Adams, R. P. (2016). Composing graphical models with neural networks for structured representations and fast inference. <em>arXiv.org</em>.</li>
+  <li>Kingma, D. P., &amp; Welling, M. (2014). Auto-Encoding Variational Bayes. In <em>International Conference on Learning Representations</em>.</li>
+  <li>Kingma, D. P., Salimans, T., &amp; Welling, M. (2016). Improving Variational Inference with Inverse Autoregressive Flow. <em>arXiv.org</em>.</li>
+  <li>Louizos, C., &amp; Welling, M. (2016). Structured and Efficient Variational Deep Learning with Matrix Gaussian Posteriors. In <em>International Conference on Machine Learning</em>.</li>
+  <li>Maaløe, L., Sønderby, C. K., Sønderby, S. K., &amp; Winther, O. (2016). Auxiliary Deep Generative Models. In <em>International Conference on Machine Learning</em>.</li>
+  <li>MacKay, D. J., &amp; Gibbs, M. N. (1999). Density networks. <em>Statistics and neural networks: advances at the interface</em>. Oxford University Press, Oxford, 129-144.</li>
+  <li>Mnih, A., &amp; Rezende, D. J. (2016). Variational inference for Monte Carlo objectives. In <em>International Conference on Machine Learning</em>.</li>
+  <li>Ranganath, R., Tran, D., &amp; Blei, D. M. (2016). Hierarchical Variational Models. In <em>International Conference on Machine Learning</em>.</li>
+  <li>Rezende, D. J., Mohamed, S., &amp; Wierstra, D. (2014). Stochastic Backpropagation and Approximate Inference in Deep Generative Models. In <em>International Conference on Machine Learning</em>.</li>
+  <li>Salimans, T., Kingma, D. P., &amp; Welling, M. (2015). Markov Chain Monte Carlo and Variational Inference: Bridging the Gap. In <em>International Conference on Machine Learning</em>.</li>
+  <li>Salakhutdinov, R., Tenenbaum, J. B., and Torralba, A (2013). Learning with hierarchical-deep models. <em>Pattern Analysis and Machine Intelligence, IEEE Transactions on</em>, 35 (8):1958–1971.</li>
+  <li>Stuhlmüller, A., Taylor, J., &amp; Goodman, N. (2013). Learning Stochastic Inverses. In <em>Neural Information Processing Systems</em>.</li>
+  <li>Tran, D., Blei, D. M., &amp; Airoldi, E. M. (2015). Copula variational inference. In <em>Neural Information Processing Systems</em>.</li>
+  <li>Tran, D., Ranganath, R., &amp; Blei, D. M. (2016). The Variational Gaussian Process. <em>International Conference on Learning Representations</em>.</li>
+  <li>Waterhouse, S., MacKay, D., and Robinson, T (1996). Bayesian methods for mixtures of experts. In <em>Neural Information Processing Systems</em>.</li>
+</ul>
+</section>
+</article>
+
+<!-- Post navigation -->
+
+
+<!-- Disqus -->
+
+
+    </div>
+    
+<script src="/blog/js/katex_init.js"></script>
+
+
+
+<footer class="site-footer">
+	<p class="text">© 2016 ・ <a class="plain" href="http://dustintran.com">dustintran.com</a>
+</p>
+</footer>
+
+
+  </body>
+</html>

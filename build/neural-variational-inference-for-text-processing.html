@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html class="no-js">
+  <head>
+	<meta charset="utf-8">
+	<title>Neural Variational Inference for Text Processing | Dustin Tran</title>
+	<meta name="description" content="  Yishu Miao, Lei Yu, Phil Blunsom. Neural Variational Inference for Text Processing. arXiv preprint arXiv:1511.06038, 2015.">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<meta http-equiv="X-Frame-Options" content="sameorigin">
+
+	<!-- CSS -->
+	<link rel="stylesheet" href="/blog/css/main.css">
+
+	<!--Favicon-->
+	<link rel="shortcut icon" href="/blog/favicon.ico" type="image/x-icon">
+
+	<!-- Canonical -->
+	<link rel="canonical" href="http://dustintran.com/blog/neural-variational-inference-for-text-processing">
+
+	<!-- RSS -->
+	<link rel="alternate" type="application/atom+xml" title="Dustin Tran" href="http://dustintran.com/blog/feed.xml" />
+
+	<!-- Font Awesome -->
+	<link href="//maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css" rel="stylesheet">
+
+	<!-- Google Fonts -->
+	
+	<link href="//fonts.googleapis.com/css?family=Source+Sans+Pro:400,700,700italic,400italic" rel="stylesheet" type="text/css">
+	
+
+	<!-- KaTeX -->
+	
+	<link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/KaTeX/0.6.0/katex.min.css">
+	<script src="//cdnjs.cloudflare.com/ajax/libs/KaTeX/0.6.0/katex.min.js"></script>
+	
+
+	<!-- Google Analytics -->
+	
+	<script>
+	(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+	(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+	m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+	})(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+	ga('create', 'UA-53150914-2', 'auto');
+	ga('send', 'pageview');
+	</script>
+	
+</head>
+
+  <body>
+    <header class="site-header">
+	<div class="branding">
+		
+		<a href="/blog/">
+			<img class="avatar" src="/blog/img/photo.png" alt=""/>
+		</a>
+		
+		<h1 class="site-title">
+			<a href="/blog/">Dustin Tran</a>
+		</h1>
+	</div>
+	<nav class="site-nav">
+		<ul>
+                        <li>
+				<a class="page-link" href="http://dustintran.com">
+					about　
+				</a>
+			</li>
+			
+			
+			<li>
+				<a class="page-link" href="/blog/2016-10-11-cross-entropy">
+					Derivative free reinforcement learning with the cross entropy method
+				</a>
+			</li>
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			<!-- Social icons from Font Awesome, if enabled -->
+			
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<li>
+	<a href="https://github.com/dustinvtran" title="Follow on GitHub">
+		<i class="fa fa-fw fa-github"></i>
+	</a>
+</li>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<li>
+	<a href="https://twitter.com/dustinvtran" title="Follow on Twitter">
+		<i class="fa fa-fw fa-twitter"></i>
+	</a>
+</li>
+
+
+
+
+
+
+		</ul>
+	</nav>
+</header>
+
+    <div class="content">
+      <article >
+  <header style="background-image: url('/blog/')">
+    <h1 class="title">Neural Variational Inference for Text Processing</h1>
+    <div style="padding-top:3%;"></div>
+    <div class="meta">
+      <span class="author">
+        By
+        
+          <a class="author-name" href="http://dustintran.com">Dustin Tran</a>
+        
+      </span>
+      <span class="date">Nov 28, 2015</span>
+      <ul>
+        
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<li>
+	<a href="https://github.com/dustinvtran" title="Follow on GitHub">
+		<i class="fa fa-fw fa-github"></i>
+	</a>
+</li>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<li>
+	<a href="https://twitter.com/dustinvtran" title="Follow on Twitter">
+		<i class="fa fa-fw fa-twitter"></i>
+	</a>
+</li>
+
+
+
+
+
+
+      </ul>
+    </div>
+  </header>
+  <section class="post-content"><ul>
+  <li>Yishu Miao, Lei Yu, Phil Blunsom. Neural Variational Inference for Text Processing. <a href="http://arxiv.org/abs/1511.06038">arXiv preprint arXiv:1511.06038</a>, 2015.</li>
+</ul>
+
+<h2 id="summary">Summary</h2>
+
+<p>Following recent work on variational auto-encoders and their advances in computer vision, the authors propose deep generative models and related inference algorithms for text. The Neural Variational Document Model (NVDM) is an instantiation of the variational auto-encoder for deep latent Gaussian models, where the data input is the bag-of-words representation of the document. There’s a cool interpretation of this, as the Gaussian latent variables can be thought of as the embedding of the discrete vocabulary in a real-valued latent space. In the scenario of multiple hidden layers, the deep latent Gaussian model can be seen as sequentially embedding each corresponding value within nested latent spaces.</p>
+
+<p>As a more complex model, they also propose the Neural Answer Selection Model (NASM) for answer sentence selection, in which the task is to identify the correct answers to a question from a set of possible answers. The NASM employs a latent attention model similar to the deep recurrent attentive writer (Gregor et al., 2015) for modelling images. Given a question <script type="math/tex">q</script>, it attends a set of answer sentences <script type="math/tex">~\{a_1,\ldots,a_n\}</script> associated with <script type="math/tex">q</script>; this in turn determines the context vector, which are the words in the answer sentences that are prominent for predicting the answer matches to the current question. This enables the model to learn subtleties inherent in the questions.</p>
+
+<h2 id="discussion">Discussion</h2>
+
+<p>It’s a simple idea coming from the variational auto-encoder literature and their recent state-of-the-art advances for unsupervised learning in computer vision. This is well worth studying. Interestingly, there doesn’t seem to be any complications when transferring these same ideas to analyzing text.</p>
+
+<p>Confusingly, it doesn’t apply neural variational inference from Mnih and Gregor (2014), as the generative model is continuous. Instead it uses the more common tricks standard in variational auto-encoders.</p>
+
+<p>It would have been interesting to study a generative model  of documents which also employs a latent attention architecture. Most immediate in my mind would be avoiding the bag-of-words representation and explicitly modelling the word-to-word sequence of the documents.</p>
+</section>
+</article>
+
+<!-- Post navigation -->
+
+
+<!-- Disqus -->
+
+
+    </div>
+    
+<script src="/blog/js/katex_init.js"></script>
+
+
+
+<footer class="site-footer">
+	<p class="text">© 2016 ・ <a class="plain" href="http://dustintran.com">dustintran.com</a>
+</p>
+</footer>
+
+
+  </body>
+</html>

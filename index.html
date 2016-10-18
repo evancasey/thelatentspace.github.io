@@ -1,0 +1,28 @@
+---
+layout: default
+---
+
+<div class="home">
+  {% if site.theme_settings.header_text %}
+  <div class="call-out"
+  style="background-image: url('{{ site.baseurl }}/{{ site.theme_settings.header_text_feature_image }}')">
+    {{ site.theme_settings.header_text }}
+  </div>
+  {% endif %}
+
+  <article>
+  <div class="posts">
+    <header style="background-image: url('/')">
+      <h1 class="title" style="text-align:center;font-style:normal;margin-bottom:6%">blog</h1>
+    </header>
+    <table style="width:100%">
+      {% for post in site.posts %}
+      <tr>
+        <td style="width:25%;border:none;"><i class="icon-clock"></i> {{ post.date | date: "%b %d, %Y" }}</td>
+        <td style="border:none;"><a class="post-link plain" href="{{ post.url | prepend: site.baseurl }}">{{ post.title }}</a></td>
+      </tr>
+      {% endfor %}
+    </table>
+  </div>
+  </article>
+</div>

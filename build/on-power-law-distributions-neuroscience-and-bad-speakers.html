@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html class="no-js">
+  <head>
+	<meta charset="utf-8">
+	<title>On power law distributions, neuroscience, and bad speakers | Dustin Tran</title>
+	<meta name="description" content="Statistical techniques have been increasingly more accepted as an empirical method for solving domain-specific problems. We introduce the power law here, a s...">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<meta http-equiv="X-Frame-Options" content="sameorigin">
+
+	<!-- CSS -->
+	<link rel="stylesheet" href="/blog/css/main.css">
+
+	<!--Favicon-->
+	<link rel="shortcut icon" href="/blog/favicon.ico" type="image/x-icon">
+
+	<!-- Canonical -->
+	<link rel="canonical" href="http://dustintran.com/blog/on-power-law-distributions-neuroscience-and-bad-speakers">
+
+	<!-- RSS -->
+	<link rel="alternate" type="application/atom+xml" title="Dustin Tran" href="http://dustintran.com/blog/feed.xml" />
+
+	<!-- Font Awesome -->
+	<link href="//maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css" rel="stylesheet">
+
+	<!-- Google Fonts -->
+	
+	<link href="//fonts.googleapis.com/css?family=Source+Sans+Pro:400,700,700italic,400italic" rel="stylesheet" type="text/css">
+	
+
+	<!-- KaTeX -->
+	
+	<link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/KaTeX/0.6.0/katex.min.css">
+	<script src="//cdnjs.cloudflare.com/ajax/libs/KaTeX/0.6.0/katex.min.js"></script>
+	
+
+	<!-- Google Analytics -->
+	
+	<script>
+	(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+	(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+	m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+	})(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+	ga('create', 'UA-53150914-2', 'auto');
+	ga('send', 'pageview');
+	</script>
+	
+</head>
+
+  <body>
+    <header class="site-header">
+	<div class="branding">
+		
+		<a href="/blog/">
+			<img class="avatar" src="/blog/img/photo.png" alt=""/>
+		</a>
+		
+		<h1 class="site-title">
+			<a href="/blog/">Dustin Tran</a>
+		</h1>
+	</div>
+	<nav class="site-nav">
+		<ul>
+                        <li>
+				<a class="page-link" href="http://dustintran.com">
+					about　
+				</a>
+			</li>
+			
+			
+			<li>
+				<a class="page-link" href="/blog/2016-10-11-cross-entropy">
+					Derivative free reinforcement learning with the cross entropy method
+				</a>
+			</li>
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			<!-- Social icons from Font Awesome, if enabled -->
+			
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<li>
+	<a href="https://github.com/dustinvtran" title="Follow on GitHub">
+		<i class="fa fa-fw fa-github"></i>
+	</a>
+</li>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<li>
+	<a href="https://twitter.com/dustinvtran" title="Follow on Twitter">
+		<i class="fa fa-fw fa-twitter"></i>
+	</a>
+</li>
+
+
+
+
+
+
+		</ul>
+	</nav>
+</header>
+
+    <div class="content">
+      <article >
+  <header style="background-image: url('/blog/')">
+    <h1 class="title">On power law distributions, neuroscience, and bad speakers</h1>
+    <div style="padding-top:3%;"></div>
+    <div class="meta">
+      <span class="author">
+        By
+        
+          <a class="author-name" href="http://dustintran.com">Dustin Tran</a>
+        
+      </span>
+      <span class="date">Oct 5, 2014</span>
+      <ul>
+        
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<li>
+	<a href="https://github.com/dustinvtran" title="Follow on GitHub">
+		<i class="fa fa-fw fa-github"></i>
+	</a>
+</li>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<li>
+	<a href="https://twitter.com/dustinvtran" title="Follow on Twitter">
+		<i class="fa fa-fw fa-twitter"></i>
+	</a>
+</li>
+
+
+
+
+
+
+      </ul>
+    </div>
+  </header>
+  <section class="post-content"><p>Statistical techniques have been increasingly more accepted as an empirical method for solving domain-specific problems. We introduce the power law here, a short description of its discussion in relation to neuroscience, and my thoughts of a recent talk regarding this.</p>
+
+<p>A <em>power law distribution</em> is a distribution whose density function is of the form</p>
+
+<script type="math/tex; mode=display">p(x) \propto L(x) x^{-\alpha},</script>
+
+<p>where <script type="math/tex">\alpha>1</script> and <script type="math/tex">L(x)</script>, known as the <em>slowly varying function</em>, satisfies <script type="math/tex">\lim_{x\to\infty} L(tx)/L(x)=1</script> for some <script type="math/tex">t>0</script>. The intuition behind this is to require a probability distribution which is (asymptotically) scale invariant, and <script type="math/tex">L(x)</script> is the direct result of that property [1].</p>
+
+<p>Perhaps the most well-known power law distribution is the <em>Pareto distribution</em>, which is defined such that for <script type="math/tex">X\sim\mathrm{Pareto}(x_m,\alpha)</script>,</p>
+
+<script type="math/tex; mode=display">P(X > x) = \left(\frac{x_m}{x}\right)^\alpha, \text{ if }x\geq x_m</script>
+
+<p>and <script type="math/tex">P(X> x) = 1</script> otherwise, where <script type="math/tex">x_m</script> is the minimum value in the domain of <script type="math/tex">X</script> and <script type="math/tex">\alpha>0</script>.</p>
+
+<p>In general, power law distributions are most often used to represent measurements with heavy tails, skew, and which are functions of some power. A common example is the distribution of wealth among individuals, since a high proportion of a population has low income while a small minority shares the most wealth. This can also be thought in terms of the <em>Pareto principle</em>, which is a rule of thumb that can be derived from this property: “roughly 80% of the effects come from 20% of the work”.</p>
+
+<p>A recent talk I attended—which I will leave anonymous for the sake of not calling out the speaker but which can still be found quite easily—centered on the hypothesis that the power law is most related to neural activity in vivo—the “active” brain—rather than in vitro. Activity spikes were recorded using humans and various animals such as cats and monkeys, and several key metrics were used: spectral, avalanche, spatiotemporal, and balance dynamics.  The underlying conclusion of the experiment was that activity displayed a distribution with no relationship to the power law, which contradicts previous established hypotheses. The speaker claims that this is because all previous research lacked enough data in order to be statistically significant.</p>
+
+<p>I must be frank in saying that the speaker’s talk was incomprehensible. It was almost purposefully cryptic by throwing domain-specific jargon and incredibly dense and unlabelled charts at an audience of computational scientists—almost all of which have very little knowledge of his domain.  Perhaps this was unintentional, but the immediate result is a feeling of alienation: few members of the audience came out understanding the results of his research. This is already barring the fact that a little less than half the audience had up and left by the time he was finishing (this was astonishing to witness).</p>
+
+<p>I cannot imagine that the field of neuroscience is so deeply engrained in niche terminology that one would be unable to present a revised talk which would be any less rigorous. His results are interesting but nevertheless spurious and hard to grasp an understanding of. It’s really unfortunate that this is not an uncommon occurrence, and speakers far too often forget that they are presenting material not to themselves but to a group of individuals who are not already familiar with the research. If there’s one lesson to be learned regarding the talk itself, it is this: be aware of your audience.</p>
+
+<p>[1] Feller, W.  An Introduction to Probability Theory and its Applications II (2nd ed.). <em>Wiley</em>, 1971.</p>
+</section>
+</article>
+
+<!-- Post navigation -->
+
+
+<!-- Disqus -->
+
+
+    </div>
+    
+<script src="/blog/js/katex_init.js"></script>
+
+
+
+<footer class="site-footer">
+	<p class="text">© 2016 ・ <a class="plain" href="http://dustintran.com">dustintran.com</a>
+</p>
+</footer>
+
+
+  </body>
+</html>
