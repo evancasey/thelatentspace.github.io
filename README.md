@@ -1,19 +1,6 @@
 # Blog
 
-This blog is built with [Jekyll](https://jekyllrb.com/).
-
-The theme builds off
-[Type Theme](https://rohanchandra.github.io/project/type/), and is
-heavily inspired by [Otoro](http://blog.otoro.net/), the [New York
-Times](http://www.nytimes.com/), and the
-[Rosenrot](http://the-rosenrot.com/). The annals-like frontpage takes
-cue from Paul Graham's [essays](http://paulgraham.com/articles.html)
-and Cosma Shalizi's [notebooks](http://bactra.org/notebooks/).
-
-The following Jekyll plugins are used:
-
-+ [KaTeX](https://khan.github.io/KaTeX/), Google Fonts, Google Analytics, Normalize, Pygments (comes with TypeTheme)
-+ [Jekyll Scholar](https://github.com/inukshuk/jekyll-scholar)
+My personal blog. Design heavily inspired by Dustin Tran's [blog](dustintran.com)
 
 ## Workflow
 
@@ -35,7 +22,7 @@ Here's my workflow for writing and submitting blog posts.
 4. Copy generated blog into VPS.
 
   ```bash
-  scp -r blog digitalocean:/var/www/dustintran.com
+  scp -r blog ec2:/var/www/ancasey.com
   ```
 5. (Optionally), log into VPS and update website.
   (This process can be streamlined by either building on the VPS or
@@ -43,7 +30,7 @@ Here's my workflow for writing and submitting blog posts.
   the repo.)
 
   ```bash
-  cd /var/www/dustintran.com
+  cd /var/www/ancasey.com
   git pull --all
   ```
 
@@ -62,4 +49,5 @@ git pull theme master
 You can compare `type-theme` to `master` and possibly merge in any
 changes. Keeping the theme up-to-date on a separate branch avoids
 treating the repo as a fork: this repo does more than just style
+
 things and is thus not appropriate as a fork.
