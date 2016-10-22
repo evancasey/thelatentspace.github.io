@@ -22,16 +22,7 @@ Here's my workflow for writing and submitting blog posts.
 4. Copy generated blog into VPS.
 
   ```bash
-  scp -r blog ec2:/var/www/ancasey.com
-  ```
-5. (Optionally), log into VPS and update website.
-  (This process can be streamlined by either building on the VPS or
-  setting up autogeneration on the VPS and once in a while pulling
-  the repo.)
-
-  ```bash
-  cd /var/www/ancasey.com
-  git pull --all
+  s3cmd put --recursive blog s3://ancasey.com/
   ```
 
 ## Maintenance
