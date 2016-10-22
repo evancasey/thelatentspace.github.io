@@ -5,3 +5,5 @@ Gemfile.lock
 
 # do not make drafts available on the repo, i.e., public
 _drafts
+
+*.swp

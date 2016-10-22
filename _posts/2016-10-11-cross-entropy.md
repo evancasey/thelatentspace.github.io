@@ -3,6 +3,7 @@ layout: post
 title: Derivative free reinforcement learning with the cross entropy method
 ---
 
+
 Modern reinforcement learning can be split up into 3 main approaches:
 
 1. [Policy iteration methods](http://www.control.ece.ntua.gr/UndergraduateCourses/ProxTexnSAE/Bertsekas.pdf) which alternate between estimating the value function under the current policy and improving the policy.
