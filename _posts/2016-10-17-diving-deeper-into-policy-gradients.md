@@ -33,7 +33,7 @@ where $$b(s_t) = V(s_t)$$ is a neural network trained on state-return pairs.
 
 ### Generalized advantage estimator actor-critic
 
-The generalized advantage estimator (GAE) actor-critic build on REINFORCE with a baseline by adding another variance reduction strategy: taking into account the policy's ability to move into more advantageous states in the future. Although REINFORCE with baseline method learns both a policy and a value function, it's not technically considered an actor-critic method because its value function is used only as a baseline, not as a critic. 
+The generalized advantage estimator (GAE) actor-critic builds on REINFORCE with a baseline by adding another variance reduction strategy: taking into account the policy's ability to move into more advantageous states in the future. Although REINFORCE with baseline method learns both a policy and a value function, it's not technically considered an actor-critic method because its value function is used only as a baseline, not as a critic. 
 
 Let's define *advantage*  $$A(s_t,a_t)$$ as the measure of "how much better than average" the action is. We'll write out the advantage formula and our policy gradient estimator for REINFORCE in terms of advantage:
 
@@ -61,7 +61,7 @@ $$
 A(s_t,a_t) = \delta_t + (\gamma \lambda) \delta_{t+1} + (\gamma \lambda)^2 \delta_{t+2} + ...
 $$
 
-Weew! Now we have an advantage formula that we can plug into our policy gradient estimator. The really interesting part is that by scaling $$\lambda$$ from 0 to 1 we interpolate between the first GAE advantage formula and the REINFORCE with baseline advantage formula.
+Great! Now we have an advantage formula that we can plug into our policy gradient estimator. The really interesting part is that by scaling $$\lambda$$ from 0 to 1 we interpolate between the first GAE advantage formula and the REINFORCE with baseline advantage formula.
 
 Observe that setting $$\lambda = 0$$ gives us:
 
@@ -135,7 +135,7 @@ class MLPValueEstimator(object):
 
 Now that we have a value estimator to act as our baseline, it's time to hook them up together. 
 
-As we showed in the last section, our choice of $$\lambda$$ allows us to interpolate between the high bias/low variance advantage formula and the REINFORCE with baseline formula. Our `VanillaActorCritic` agent uses the generalized advantage estimator formula but is equivalent to REINFORCE with baseline for $$\lambda=1.0$$.
+As we showed in the last section, our choice of $$\lambda$$ allows us to interpolate between the high bias/low variance advantage formula and the REINFORCE with baseline formula. Our `VanillaActorCritic` agent uses the generalized advantage estimator formula which is equivalent to REINFORCE with baseline for $$\lambda=1.0$$.
 
 
 ```python
