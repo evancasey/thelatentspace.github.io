@@ -272,7 +272,6 @@ class BatchSampler(object):
         return stats, traj
 ```
 
-For the rest of the implementation, take a look at the full repo [here](http://github.com/evancasey/demeter).
 
 ### Results
 

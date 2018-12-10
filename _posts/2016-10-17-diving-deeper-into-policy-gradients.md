@@ -182,7 +182,6 @@ class VanillaActorCritic(base_agent.BaseAgent):
             self.action_policy.annealer.anneal(self.train_iter)
 ```
 
-For the rest of the implementation, take a look at the full repo [here](http://github.com/evancasey/demeter).
 
 ### Results
 
