@@ -3,9 +3,7 @@ layout: post
 title: Diving deeper into policy gradients&#58; Actor-critic methods
 ---
 
-In my [last post]({{site.url}}/blog/diving-deeper-into-policy-gradients.html) on policy gradients, we presented the REINFORCE policy gradient. In this post, we'll derive a slightly better class of policy gradients called actor-critic methods that address the issue of high reward variance by using a separate value estimation network. We'll provide implementations in Tensorflow of two types of actor-critic policy gradients: REINFORCE with a baseline and the generalized advantage estimator (GAE) actor-critic. Finally, we'll provide some results on several classic control benchmarks using [OpenAI gym](https://gym.openai.com/).
-
-All the code for both posts is available on [github](http://github.com/evancasey/demeter).
+In my [last post]({{site.url}}/policy-gradients-primer.html) on policy gradients, we presented the REINFORCE policy gradient. In this post, we'll derive a slightly better class of policy gradients called actor-critic methods that address the issue of high reward variance by using a separate value estimation network. We'll provide implementations in Tensorflow of two types of actor-critic policy gradients: REINFORCE with a baseline and the generalized advantage estimator (GAE) actor-critic. Finally, we'll provide some results on several classic control benchmarks using [OpenAI gym](https://gym.openai.com/).
 
 ### Recap
 
@@ -192,8 +190,8 @@ On both the cartpole and acrobot environments, the impact on performance of all 
 
 In the experiments we set `gae_lambda` to .96 and `discount` to .98, which were close to optimal according to Schulman's experiments. For REINFORCE (no baseline) we set `discount` to .99. We use an `AdamOptimizer` for both networks with a learning rate of 0.01 for the policy as before and 0.1 for the value network. The total rewards by episode are plotted below, averaged over 10 runs:
 
-![img]({{site.url}}/blog/img/pg/cartpole_all.png)
-![img]({{site.url}}/blog/img/pg/acrobot_all.png)
+![img]({{site.url}}/img/pg/cartpole_all.png)
+![img]({{site.url}}/img/pg/acrobot_all.png)
 
 All 3 algorithms struggled with getting stuck in bad local optima on acrobot (around ~20% of the time). As a result, the averages are significantly lower than the best performing runs. This could be due to vanishing gradients or limitations of the efficacy of the policy gradient itself.
 

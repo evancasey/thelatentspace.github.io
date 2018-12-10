@@ -5,8 +5,6 @@ title: A primer on policy gradients&#58; REINFORCE
 
 In this post, we will present a basic form of the policy gradient called the REINFORCE algorithm and show how to derive its policy gradient estimator update with a discrete action space. We will provide an implementation in Tensorflow and evaluate the results on a number of classic control benchmarks on [OpenAI gym](https://gym.openai.com/).
 
-All implementation code can also be accessed on [github](http://github.com/evancasey/demeter).
-
 ### Introduction to policy gradients
 
 There are already a number of great resources on policy gradients. In particular, the following resources do a great job of explaining policy gradients and should act as a supplementary reference to this blog post if needed:

@@ -1,20 +1,20 @@
 # SITE CONFIGURATION
-baseurl: "/blog" # the subpath of your site, e.g. /blog/
-url: "http://ev.ancasey.com" # the base hostname & protocol for your site
+baseurl: # the subpath of your site, e.g. /blog/
+url: "http://thelatentspace.com" # the base hostname & protocol for your site
 
 # THEME-SPECIFIC CONFIGURATION
 theme_settings:
   # Meta
-  title: Evan Casey
+  title: the latent space 
   author: Evan Casey
-  avatar: photo.png
+  avatar: snorlax.jpg
   gravatar:
   description:
 
   header_text:
   header_text_feature_image:
   footer_text: >
-    © 2016 ・ <a class="plain" href="http://ev.ancasey.com">ev.ancasey.com</a>
+    © 2018 ・ <a class="plain" href="http://thelatentspace.com">thelatentspace.com</a>
 
   # Icons
   rss: false
@@ -24,7 +24,7 @@ theme_settings:
   dribbble:
   facebook:
   flickr:
-  github: "evancasey"
+  github:
   google_plus:
   instagram:
   linkedin:
@@ -34,7 +34,7 @@ theme_settings:
   stack_exchange:
   steam:
   tumblr:
-  twitter: "ev_ancasey"
+  twitter:
   wordpress:
   youtube:
 
